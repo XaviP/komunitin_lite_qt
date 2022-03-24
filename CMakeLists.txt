@@ -16,7 +16,8 @@ find_package(Qt5Network)
 
 add_executable(komunitin_lite_qt
   main.cpp
-  account.cpp
   netservices.cpp
+  account.cpp
+  transfer.cpp
 )
 target_link_libraries(komunitin_lite_qt Qt5::Core Qt5::Network)
