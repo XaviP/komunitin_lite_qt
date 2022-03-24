@@ -56,7 +56,8 @@ void netServices::get_access(std::string email, std::string password)
 
 std::vector<account> netServices::get_accounts()
 {
-    QNetworkReply *getReply = this->get_call(baseApiUrl + "/social/users/me?include=members");
+    QNetworkReply *getReply = nullptr;
+    getReply = this->get_call(baseApiUrl + "/social/users/me?include=members", getReply);
     std::vector<account> accs;
     if(getReply->error()) {
         qDebug() << "Error: " << getReply->errorString();
@@ -84,7 +85,8 @@ std::vector<account> netServices::get_accounts()
 }
 
 void netServices::get_account_balance(account *acc) {
-    QNetworkReply *getReply = this->get_call(QString::fromStdString(acc->account_link) + "?include=currency");
+    QNetworkReply *getReply = nullptr;
+    getReply = this->get_call(QString::fromStdString(acc->account_link) + "?include=currency", getReply);
     if(getReply->error()) {
         qDebug() << "Error: " << getReply->errorString();
     }
@@ -100,14 +102,14 @@ void netServices::get_account_balance(account *acc) {
     }
 }
 
-QNetworkReply* netServices::get_call(QString url) {
+QNetworkReply* netServices::get_call(QString url, QNetworkReply* getReply) {
     QUrl getUrl = QUrl(url);
     QNetworkRequest networkRequest(getUrl);
     networkRequest.setHeader(QNetworkRequest::ContentTypeHeader,"application/vnd.api+json");
     networkRequest.setRawHeader("Authorization", this->authHeaderValue);
 
     QEventLoop loop;
-    QNetworkReply *getReply = this->netManager->get(networkRequest);
+    getReply = this->netManager->get(networkRequest);
     connect(getReply, SIGNAL(finished()), &loop, SLOT(quit()));
     loop.exec();
 

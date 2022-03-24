@@ -15,7 +15,7 @@ Q_OBJECT
 private:
     QNetworkAccessManager *netManager;
     QByteArray authHeaderValue;
-    QNetworkReply* get_call(QString);
+    QNetworkReply* get_call(QString, QNetworkReply*);
 public:
     bool hasAccess;
     explicit netServices(QObject *parent = nullptr);
