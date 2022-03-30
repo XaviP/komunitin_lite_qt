@@ -91,12 +91,12 @@ void netServices::get_account_balance(account* acc) {
     else {
         QJsonDocument jsonResponse = QJsonDocument::fromJson(QString(getReply->readAll()).toUtf8());
         acc->balance = jsonResponse.object()["data"].toObject()["attributes"].toObject()["balance"].toDouble();
-        acc->currency.id =  jsonResponse.object()["included"].toObject()["id"].toString().toStdString();
-        QJsonObject attr = jsonResponse.object()["included"].toObject()["attributes"].toObject();
+        acc->currency.id =  jsonResponse.object()["included"].toArray()[0].toObject()["id"].toString().toStdString();
+        QJsonObject attr = jsonResponse.object()["included"].toArray()[0].toObject()["attributes"].toObject();
         acc->currency.name = attr["name"].toString().toStdString();
         acc->currency.plural = attr["namePlural"].toString().toStdString();
         acc->currency.symbol = attr["symbol"].toString().toStdString();
-        acc->currency.decimals = attr["decimals"].toInt();
+        acc->currency.decimals = attr["decimals"].toString().toInt();
     }
 }
 

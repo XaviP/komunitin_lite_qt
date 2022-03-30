@@ -5,6 +5,14 @@
 
 using namespace std;
 
+struct Currency {
+    string id;
+    string name;
+    string plural;
+    string symbol;
+    int decimals;
+};
+
 class transfer
 {
 public:
@@ -19,11 +27,7 @@ public:
     string payer_account_code;
     string payee_account_id;
     string payee_account_code;
-    string currency_id;
-    string currency_name;
-    string currency_plural;
-    string currency_symbol;
-    string currency_decimals;
+    Currency currency;
 };
 
 #endif // TRANSFER_H
