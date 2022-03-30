@@ -22,6 +22,7 @@ public:
     void get_access(std::string, std::string);
     void get_accounts(std::vector<account>&);
     void get_account_balance(account*);
+    void get_account_transfers(account*);
 };
 
 #endif // NETSERVICES_H
