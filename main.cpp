@@ -22,10 +22,7 @@ int main(int argc, char *argv[])
     ns->get_accounts(accounts);
     ns->get_account_balance(&accounts[0]);
     std::cout << accounts[0].account_code << ": " << accounts[0].print_balance() << std::endl;
-    std::cout << accounts[0].print_account();
     ns->get_account_transfers(&accounts[0]);
-//    for () {
-//        std::cout << 12;
-//    }
+    std::cout << accounts[0].print_account();
     return a.exec();
 }

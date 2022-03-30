@@ -12,6 +12,7 @@
 
 #include "netservices.h"
 #include "account.h"
+#include "transfer.h"
 
 const QString baseApiUrl = "https://demo.integralces.net/ces/api";
 const char oauth2TokenUrl[] = "https://demo.integralces.net/oauth2/token";
@@ -102,8 +103,7 @@ void netServices::get_account_balance(account* acc) {
 
 void netServices::get_account_transfers(account* acc) {
     QString url = baseApiUrl + "/accounting/" + QString::fromStdString(acc->group_code) +
-            "/transfers?filter[account]={" + QString::fromStdString(acc->account_id) + "}";
-    qDebug() << url;
+            "/transfers?filter[account]=" + QString::fromStdString(acc->account_id);
     QNetworkReply *getReply = nullptr;
     this->get_call(url, getReply);
     if(getReply->error()) {
@@ -111,7 +111,31 @@ void netServices::get_account_transfers(account* acc) {
     }
     else {
         QJsonDocument jsonResponse = QJsonDocument::fromJson(QString(getReply->readAll()).toUtf8());
-        qDebug() << jsonResponse;
+        int sizeArray = jsonResponse.object()["data"].toArray().size();
+
+        QJsonObject trans;
+        for (int i=0; i < sizeArray; i++) {
+            trans = jsonResponse.object()["data"].toArray()[i].toObject();
+            acc->transfers.push_back(transfer(trans["id"].toString().toStdString()));
+            transfer* p = &acc->transfers.back();
+            p->amount = trans["attributes"].toObject()["amount"].toInt();
+            p->meta = trans["attributes"].toObject()["meta"].toString().toStdString();
+            p->state = trans["attributes"].toObject()["state"].toString().toStdString();
+            p->created = trans["attributes"].toObject()["created"].toString().toStdString();
+            p->updated = trans["attributes"].toObject()["updated"].toString().toStdString();
+            p->payer_account_id = trans["relationships"].toObject()["payer"].toObject()["data"].toObject()["id"].toString().toStdString();
+            if (p->payer_account_id == acc->account_id) {
+                p->payer_account_code = acc->account_code;
+            }
+            p->payee_account_id = trans["relationships"].toObject()["payee"].toObject()["data"].toObject()["id"].toString().toStdString();
+            if (p->payee_account_id == acc->account_id) {
+                p->payee_account_code = acc->account_code;
+            }
+            p->currency.id = trans["relationships"].toObject()["currency"].toObject()["data"].toObject()["id"].toString().toStdString();
+            if (p->currency.id == acc->currency.id) {
+                p->currency = acc->currency;
+            }
+        }
     }
 
 }

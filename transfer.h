@@ -18,7 +18,7 @@ class transfer
 public:
     transfer(string trans_id);
     string id;
-    float amount;
+    int amount;
     string meta;
     string state;
     string created;
