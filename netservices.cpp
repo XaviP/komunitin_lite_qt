@@ -184,7 +184,27 @@ void netServices::get_unknown_accounts(account* acc, const string& comma_list) {
     else {
         QString strReply = getReply->readAll();
         QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
-        qDebug() << strReply;
+        int sizeArray = jsonResponse.object()["data"].toArray().size();
+
+        QJsonObject a;
+        for (int i=0; i < sizeArray; i++) {
+            a = jsonResponse.object()["data"].toArray()[i].toObject();
+            string id = a["relationships"].toObject()["account"].toObject()
+                    ["data"].toObject()["id"].toString().toStdString();
+            for (i=0; i<acc->transfers.size(); i++) {
+                transfer* p = &acc->transfers[i];
+                if (id == p->payer_account_id) {
+                    p->payer_account_code = a["attributes"].toObject()["code"].
+                            toString().toStdString();
+                } else {
+                    if (id == p->payee_account_id) {
+                        p->payee_account_code = a["attributes"].toObject()["code"].
+                            toString().toStdString();
+                    }
+                }
+            }
+        }
+
     }
 }
 
