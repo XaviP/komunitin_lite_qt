@@ -131,6 +131,7 @@ void netServices::get_account_transfers(account* acc) {
         int sizeArray = jsonResponse.object()["data"].toArray().size();
 
         QJsonObject trans;
+        std::vector<string> unknown_accounts;
         for (int i=0; i < sizeArray; i++) {
             trans = jsonResponse.object()["data"].toArray()[i].toObject();
             acc->transfers.push_back(transfer(trans["id"].toString().toStdString()));
@@ -149,19 +150,42 @@ void netServices::get_account_transfers(account* acc) {
             if (p->payer_account_id == acc->account_id) {
                 p->payer_account_code = acc->account_code;
             }
+            else {unknown_accounts.push_back(p->payer_account_id);}
             p->payee_account_id = trans["relationships"].toObject()["payee"].
                     toObject()["data"].toObject()["id"].toString().toStdString();
             if (p->payee_account_id == acc->account_id) {
                 p->payee_account_code = acc->account_code;
             }
+            else {unknown_accounts.push_back(p->payee_account_id);}
             p->currency.id = trans["relationships"].toObject()["currency"].
                     toObject()["data"].toObject()["id"].toString().toStdString();
             if (p->currency.id == acc->currency.id) {
                 p->currency = acc->currency;
             }
         }
+        string comma_list;
+        for(string s : unknown_accounts) {
+            comma_list += s;
+            if (s != unknown_accounts.back()) comma_list += ",";
+        }
+        get_unknown_accounts(acc, comma_list);
     }
 
+}
+
+void netServices::get_unknown_accounts(account* acc, const string& comma_list) {
+    QString url = baseApiUrl + "/social/" + QString::fromStdString(acc->group_code) +
+            "/members?filter[account]=" + QString::fromStdString(comma_list);
+    QNetworkReply *getReply = nullptr;
+    this->get_call(url, getReply);
+    if(getReply->error()) {
+        qDebug() << "Error: " << getReply->errorString();
+    }
+    else {
+        QString strReply = getReply->readAll();
+        QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
+        qDebug() << strReply;
+    }
 }
 
 void netServices::get_call(QString url, QNetworkReply*& getReply) {

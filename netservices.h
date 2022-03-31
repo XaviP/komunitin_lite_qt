@@ -15,6 +15,7 @@ Q_OBJECT
 private:
     QNetworkAccessManager *netManager;
     QByteArray authHeaderValue;
+    void get_unknown_accounts(account*, const string&);
     void get_call(QString, QNetworkReply*&);
 public:
     bool hasAccess;
