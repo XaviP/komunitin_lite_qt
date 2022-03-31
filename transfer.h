@@ -28,6 +28,17 @@ public:
     string payee_account_id;
     string payee_account_code;
     Currency currency;
+
+    string print_amount() {
+        int factor = 1;
+        for (int i=0; i<currency.decimals; i++) { factor *= 10; }
+        return std::to_string(float(amount)/float(factor)) + " " + currency.plural;
+    }
+
+    string print_transfer() {
+        return "from " + payer_account_code + " to " + payee_account_code + ": " + print_amount() + "\n";
+    }
+
 };
 
 #endif // TRANSFER_H

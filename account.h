@@ -49,7 +49,7 @@ public:
        out += "currency decimals: " + std::to_string(currency.decimals) + "\n";
        out += "transfers :\n";
        for (int i=0; i<transfers.size(); i++) {
-           out += transfers[i].id + ": " + std::to_string(transfers[i].amount) + "\n";
+           out += transfers[i].print_transfer();
        }
        return out;
     }

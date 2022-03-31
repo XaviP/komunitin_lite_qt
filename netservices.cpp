@@ -49,10 +49,10 @@ void netServices::get_access(std::string email, std::string password)
     if(postReply->error()) {qDebug() << "Error: " << postReply->errorString();}
     else {
         QString strReply = postReply->readAll();
+        qDebug() << "----------\n" << strReply << "\n----------\n";
         QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
         this->authHeaderValue = QString("Bearer " + jsonResponse.object()["access_token"].toString()).toUtf8();
         this->hasAccess = true;
-        qDebug() << strReply;
     }
 }
 
@@ -64,7 +64,8 @@ void netServices::get_accounts(std::vector<account>& accs)
         qDebug() << "Error: " << getReply->errorString();
     }
     else {
-        QJsonDocument jsonResponse = QJsonDocument::fromJson(QString(getReply->readAll()).toUtf8());
+        QString strReply = getReply->readAll();
+        QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
         std::string user_id = jsonResponse.object()["data"].toObject()["id"].toString().toStdString();
         int sizeArray = jsonResponse.object()["included"].toArray().size();
 
@@ -90,7 +91,8 @@ void netServices::get_account_balance(account* acc) {
         qDebug() << "Error: " << getReply->errorString();
     }
     else {
-        QJsonDocument jsonResponse = QJsonDocument::fromJson(QString(getReply->readAll()).toUtf8());
+        QString strReply = getReply->readAll();
+        QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
         acc->balance = jsonResponse.object()["data"].toObject()["attributes"].toObject()["balance"].toDouble();
         acc->currency.id =  jsonResponse.object()["included"].toArray()[0].toObject()["id"].toString().toStdString();
         QJsonObject attr = jsonResponse.object()["included"].toArray()[0].toObject()["attributes"].toObject();
@@ -110,7 +112,8 @@ void netServices::get_account_transfers(account* acc) {
         qDebug() << "Error: " << getReply->errorString();
     }
     else {
-        QJsonDocument jsonResponse = QJsonDocument::fromJson(QString(getReply->readAll()).toUtf8());
+        QString strReply = getReply->readAll();
+        QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
         int sizeArray = jsonResponse.object()["data"].toArray().size();
 
         QJsonObject trans;
@@ -142,7 +145,6 @@ void netServices::get_account_transfers(account* acc) {
 
 void netServices::get_call(QString url, QNetworkReply*& getReply) {
     QUrl getUrl = QUrl(url);
-    qDebug() << getUrl;
     QNetworkRequest networkRequest(getUrl);
     networkRequest.setHeader(QNetworkRequest::ContentTypeHeader,"application/vnd.api+json");
     networkRequest.setRawHeader("Authorization", this->authHeaderValue);
