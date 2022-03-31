@@ -27,11 +27,13 @@ public:
     string print_balance() {
         int factor = 1;
         for (int i=0; i<currency.decimals; i++) { factor *= 10; }
-        return std::to_string(float(balance)/float(factor)) + " " + currency.plural;
+        return std::to_string(float(balance)/float(factor)) +
+               " " + currency.plural;
     }
 
     string print_account() {
        string out = "";
+
        out += "user id: " + user_id + "\n";
        out += "member id: " + member_id + "\n";
        out += "member name: " + member_name + "\n";
@@ -48,9 +50,11 @@ public:
        out += "currency symbol: " + currency.symbol + "\n";
        out += "currency decimals: " + std::to_string(currency.decimals) + "\n";
        out += "transfers :\n";
+
        for (int i=0; i<transfers.size(); i++) {
            out += transfers[i].print_transfer();
        }
+
        return out;
     }
 
