@@ -176,6 +176,7 @@ void netServices::get_account_transfers(account* acc) {
 void netServices::get_unknown_accounts(account* acc, const string& comma_list) {
     QString url = baseApiUrl + "/social/" + QString::fromStdString(acc->group_code) +
             "/members?filter[account]=" + QString::fromStdString(comma_list);
+    qDebug() << url;
     QNetworkReply *getReply = nullptr;
     this->get_call(url, getReply);
     if(getReply->error()) {
@@ -185,20 +186,19 @@ void netServices::get_unknown_accounts(account* acc, const string& comma_list) {
         QString strReply = getReply->readAll();
         QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
         int sizeArray = jsonResponse.object()["data"].toArray().size();
-
-        QJsonObject a;
+        QJsonObject da;
         for (int i=0; i < sizeArray; i++) {
-            a = jsonResponse.object()["data"].toArray()[i].toObject();
-            string id = a["relationships"].toObject()["account"].toObject()
+            da = jsonResponse.object()["data"].toArray()[i].toObject();
+            string id = da["relationships"].toObject()["account"].toObject()
                     ["data"].toObject()["id"].toString().toStdString();
-            for (i=0; i<acc->transfers.size(); i++) {
-                transfer* p = &acc->transfers[i];
+            for (int j=0; j < (int)acc->transfers.size(); j++) {
+                transfer* p = &acc->transfers[j];
                 if (id == p->payer_account_id) {
-                    p->payer_account_code = a["attributes"].toObject()["code"].
+                    p->payer_account_code = da["attributes"].toObject()["code"].
                             toString().toStdString();
                 } else {
                     if (id == p->payee_account_id) {
-                        p->payee_account_code = a["attributes"].toObject()["code"].
+                        p->payee_account_code = da["attributes"].toObject()["code"].
                             toString().toStdString();
                     }
                 }
