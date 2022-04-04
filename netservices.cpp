@@ -14,7 +14,7 @@
 #include "account.h"
 #include "transfer.h"
 
-const QString baseApiUrl = "https://demo.integralces.net/ces/api";
+QString baseApiUrl = "https://demo.integralces.net/ces/api";
 const char oauth2TokenUrl[] = "https://demo.integralces.net/oauth2/token";
 const char oauth2ClientId[] = "odoo-pos-komunitin";
 //const char oauth2ClientPassword[] = "xxx-xxx-xxx-xxx";
@@ -24,7 +24,9 @@ netServices::netServices(QObject *parent) : QObject(parent),
     netManager(new QNetworkAccessManager(this)), hasAccess(false)
 {}
 
-void netServices::get_access(std::string email, std::string password)
+netServices::~netServices() { delete netManager; }
+
+void netServices::get_access(const std::string& email, const std::string& password)
 {
     QUrlQuery query;
     query.addQueryItem("grant_type","password");
@@ -164,9 +166,9 @@ void netServices::get_account_transfers(account* acc) {
             }
         }
         string comma_list;
-        for(string s : unknown_accounts) {
-            comma_list += s;
-            if (s != unknown_accounts.back()) comma_list += ",";
+        for(int j= 0; j < (int)unknown_accounts.size(); j++) {
+            comma_list += unknown_accounts[j];
+            if (unknown_accounts[j] != unknown_accounts.back()) comma_list += ",";
         }
         get_unknown_accounts(acc, comma_list);
     }
@@ -208,7 +210,7 @@ void netServices::get_unknown_accounts(account* acc, const string& comma_list) {
     }
 }
 
-void netServices::get_call(QString url, QNetworkReply*& getReply) {
+void netServices::get_call(const QString& url, QNetworkReply*& getReply) {
     QUrl getUrl = QUrl(url);
     QNetworkRequest networkRequest(getUrl);
     networkRequest.setHeader(QNetworkRequest::ContentTypeHeader,
