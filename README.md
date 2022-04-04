@@ -1,3 +1,3 @@
 # Komunitin Lite
 
-Basic C++ Qt5 client for komunitin users.
+Basic C++ Qt6 client for komunitin users.

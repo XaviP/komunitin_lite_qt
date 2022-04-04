@@ -1,34 +1,23 @@
-#include <string>
-#include <iostream>
-#include <QCoreApplication>
-#include "netservices.h"
-#include "account.h"
+#include "mainwindow.h"
 
+#include <QApplication>
+#include <QLocale>
+#include <QTranslator>
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication a(argc, argv);
-    netServices *ns = new netServices();
+    QApplication a(argc, argv);
 
-    std::string email = "";
-    std::string password = "";
-    while (!ns->hasAccess) {
-        std::cout << "Email: ";
-        std::cin >> email;
-        std::cout << "Password: ";
-        std::cin >> password;
-        ns->get_access(email, password);
+    QTranslator translator;
+    const QStringList uiLanguages = QLocale::system().uiLanguages();
+    for (const QString &locale : uiLanguages) {
+        const QString baseName = "komunitin_lite_qt_" + QLocale(locale).name();
+        if (translator.load(":/i18n/" + baseName)) {
+            a.installTranslator(&translator);
+            break;
+        }
     }
-
-    std::vector<account> accounts;
-    ns->get_accounts(accounts);
-
-    ns->get_account_balance(&accounts[0]);
-    std::cout << accounts[0].account_code << ": " <<
-                 accounts[0].print_balance() << std::endl;
-
-    ns->get_account_transfers(&accounts[0]);
-    std::cout << accounts[0].print_account();
-
+    MainWindow w;
+    w.show();
     return a.exec();
 }
