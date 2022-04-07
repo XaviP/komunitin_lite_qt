@@ -16,7 +16,7 @@ struct Currency {
 class transfer
 {
 public:
-    transfer(string trans_id);
+    transfer(const string& trans_id);
     string id;
     int amount;
     string meta;
@@ -29,19 +29,8 @@ public:
     string payee_account_code;
     Currency currency;
 
-    string print_amount() {
-        int factor = 1;
-        for (int i=0; i<currency.decimals; i++) { factor *= 10; }
-
-        return std::to_string(float(amount)/float(factor)) +
-               " " + currency.plural;
-    }
-
-    string print_transfer() {
-        return "from " + payer_account_code + " to " + payee_account_code +
-               ": " + print_amount() + "\n";
-    }
-
+    string print_amount();
+    string print_transfer();
 };
 
 #endif // TRANSFER_H

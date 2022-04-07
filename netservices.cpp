@@ -1,4 +1,4 @@
-#include<string>
+#include <string>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>

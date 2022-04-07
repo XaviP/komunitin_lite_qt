@@ -21,12 +21,15 @@ set(PROJECT_SOURCES
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
+        logindialog.ui
         account.h
         account.cpp
         transfer.h
         transfer.cpp
         netservices.h
         netservices.cpp
+        logindialog.h
+        logindialog.cpp
         ${TS_FILES}
 )
 

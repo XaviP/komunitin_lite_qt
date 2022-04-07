@@ -2,6 +2,7 @@
 #define NETSERVICES_H
 
 #include <string>
+#include <vector>
 #include <QObject>
 #include <QString>
 #include <QByteArray>
