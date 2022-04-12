@@ -71,17 +71,17 @@
     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
    </property>
   </widget>
-  <widget class="QDialogButtonBox" name="buttonBox">
+  <widget class="QPushButton" name="pushButtonLogin">
    <property name="geometry">
     <rect>
-     <x>110</x>
+     <x>190</x>
      <y>120</y>
-     <width>166</width>
+     <width>80</width>
      <height>25</height>
     </rect>
    </property>
-   <property name="standardButtons">
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+   <property name="text">
+    <string>Login</string>
    </property>
   </widget>
  </widget>

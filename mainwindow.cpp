@@ -19,10 +19,12 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::authenticate() {
-    LoginDialog loginD(this);
-    loginD.exec();
-    string email = loginD.get_email(); //"gauss@integralces.net";
-    string password = loginD.get_password(); //"integralces";
-    ns->get_access(email, password);
+    while (!ns->hasAccess) {
+        LoginDialog loginD(this);
+        loginD.exec();
+        string email = loginD.get_email(); //"gauss@integralces.net";
+        string password = loginD.get_password(); //"integralces";
+        ns->get_access(email, password);
+    }
 }
 

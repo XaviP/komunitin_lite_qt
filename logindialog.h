@@ -21,6 +21,8 @@ private:
 
 signals:
 
+private slots:
+    void on_pushButton_clicked();
 };
 
 #endif // LOGINDIALOG_H

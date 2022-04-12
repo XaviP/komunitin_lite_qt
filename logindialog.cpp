@@ -6,6 +6,8 @@ LoginDialog::LoginDialog(QWidget *parent)
       ui(new Ui::LoginDialog)
 {
     ui->setupUi(this);
+    connect(ui->pushButtonLogin, SIGNAL(clicked()), this,
+            SLOT(on_pushButton_clicked()), Qt::DirectConnection);
 }
 
 LoginDialog::~LoginDialog()
@@ -20,3 +22,13 @@ std::string LoginDialog::get_email() {
 std::string LoginDialog::get_password() {
     return ui->lineEditPassword->text().toStdString();
 }
+
+void LoginDialog::on_pushButton_clicked()
+{
+    if (get_email().empty() || get_password().empty()) {
+        qDebug() << "Empty user or password";
+    } else {
+        this->accept();
+    }
+}
+
