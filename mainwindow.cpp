@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
       accounts()
 {
     ui->setupUi(this);
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 }
 
 MainWindow::~MainWindow()
@@ -20,11 +21,20 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::authenticate() {
-    while (!ns->hasAccess) {
-        LoginDialog loginD(this);
-        loginD.exec();
-        ns->get_access(loginD.get_email(), loginD.get_password());
+    LoginDialog loginD(ns, this);
+    loginD.exec();
+}
+
+void MainWindow::login_dialog_close() {
+    if (ns->hasAccess) {
+        get_user_data();
     }
+    else {
+        qDebug() << "something wrong with authentication.";
+    }
+}
+
+void MainWindow::get_user_data() {
     ns->get_accounts(accounts);
     for (int i=0; i  < (int)accounts.size(); i++) {
         ui->accountComboBox->addItem(QString::fromStdString(accounts[i].account_code));

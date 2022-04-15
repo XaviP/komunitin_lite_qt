@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <QMainWindow>
+#include "logindialog.h"
 #include "netservices.h"
 #include "account.h"
 
@@ -18,10 +19,14 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void authenticate();
+    void get_user_data();
 
 private:
     Ui::MainWindow *ui;
     netServices *ns;
     std::vector<account> accounts;
+
+public slots:
+    void login_dialog_close();
 };
 #endif // MAINWINDOW_H

@@ -84,7 +84,7 @@
     <string>Login</string>
    </property>
   </widget>
-  <widget class="QLabel" name="labeError">
+  <widget class="QLabel" name="labelError">
    <property name="geometry">
     <rect>
      <x>20</x>
