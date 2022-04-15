@@ -178,7 +178,6 @@ void netServices::get_account_transfers(account* acc) {
 void netServices::get_unknown_accounts(account* acc, const string& comma_list) {
     QString url = baseApiUrl + "/social/" + QString::fromStdString(acc->group_code) +
             "/members?filter[account]=" + QString::fromStdString(comma_list);
-    qDebug() << url;
     QNetworkReply *getReply = nullptr;
     this->get_call(url, getReply);
     if(getReply->error()) {

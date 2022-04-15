@@ -22,7 +22,7 @@ private:
 signals:
 
 private slots:
-    void on_pushButton_clicked();
+    void on_pushButtonLogin_clicked();
 };
 
 #endif // LOGINDIALOG_H

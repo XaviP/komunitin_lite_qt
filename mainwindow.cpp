@@ -7,7 +7,8 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
-      ns(new netServices)
+      ns(new netServices),
+      accounts()
 {
     ui->setupUi(this);
 }
@@ -22,9 +23,16 @@ void MainWindow::authenticate() {
     while (!ns->hasAccess) {
         LoginDialog loginD(this);
         loginD.exec();
-        string email = loginD.get_email(); //"gauss@integralces.net";
-        string password = loginD.get_password(); //"integralces";
-        ns->get_access(email, password);
+        ns->get_access(loginD.get_email(), loginD.get_password());
     }
+    ns->get_accounts(accounts);
+    for (int i=0; i  < (int)accounts.size(); i++) {
+        ui->accountComboBox->addItem(QString::fromStdString(accounts[i].account_code));
+    }
+    ui->nameInsertLabel->setText(QString::fromStdString(accounts[0].member_name));
+    ui->balanceInsertLabel->setText(QString::fromStdString(accounts[0].print_balance()));
+    qDebug() << QString::fromStdString(accounts[0].account_code);
+    ns->get_account_transfers(&accounts[0]);
+    qDebug() << QString::fromStdString(accounts[0].print_account());
 }
 
