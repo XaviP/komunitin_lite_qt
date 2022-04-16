@@ -12,18 +12,18 @@ class LoginDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit LoginDialog(netServices* ns, QWidget *parent = nullptr);
+    explicit LoginDialog(QWidget *parent = nullptr);
     ~LoginDialog();
     std::string get_email();
     std::string get_password();
+    Ui::LoginDialog *ui;
 
 private:
-    Ui::LoginDialog *ui;
-    netServices* ns;
+
 
 public slots:
     void pushButtonLogin_clicked();
-    void authentication_reply(error_reply);
+//    void authentication_reply(bool);
 };
 
 #endif // LOGINDIALOG_H

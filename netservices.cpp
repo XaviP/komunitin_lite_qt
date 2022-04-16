@@ -45,22 +45,20 @@ void netServices::get_access(const std::string& email, const std::string& passwo
                              "application/x-www-form-urlencoded");
 
 //    QEventLoop loop;
-//    QNetworkReply *postReply = this->netManager->post(networkRequest,postData);
+//    QNetworkReply *postReply = netManager->post(networkRequest, postData);
 //    connect(postReply, SIGNAL(finished()), &loop, SLOT(quit()));
 //    loop.exec();
 
-    qDebug() << "going to connect signal-slot...";
-    QObject::connect(netManager, SIGNAL(finished(QNetworkReply*)),
+    this->netManager->post(networkRequest, postData);
+    connect(netManager, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(get_access_reply(QNetworkReply*)));
-    qDebug() << "going to call post...";
-    netManager->post(networkRequest, postData);
 }
 
 void netServices::get_access_reply(QNetworkReply* postReply) {
 
     if(postReply->error()) {
         qDebug() << "Error: " << postReply->errorString();
-        emit access_reply({true, postReply->errorString().toStdString()});
+        emit access_reply(true);
     }
     else {
         QString strReply = postReply->readAll();
@@ -69,7 +67,7 @@ void netServices::get_access_reply(QNetworkReply* postReply) {
         this->authHeaderValue = QString("Bearer " + jsonResponse.object()
                                         ["access_token"].toString()).toUtf8();
         this->hasAccess = true;
-        emit access_reply({false, ""});
+        emit access_reply(false);
     }
 }
 

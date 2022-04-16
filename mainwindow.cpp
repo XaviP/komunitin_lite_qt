@@ -3,6 +3,7 @@
 #include "mainwindow.h"
 #include "logindialog.h"
 #include "./ui_mainwindow.h"
+#include "ui_logindialog.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -12,6 +13,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    connect(ns, SIGNAL(access_reply(bool)),
+            this, SLOT(authenticate_reply(bool))); //, Qt::QueuedConnection);
 }
 
 MainWindow::~MainWindow()
@@ -21,16 +24,21 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::authenticate() {
-    LoginDialog loginD(ns, this);
+    LoginDialog loginD(this);
     loginD.exec();
+    ns->get_access(loginD.get_email(), loginD.get_password());
 }
 
-void MainWindow::login_dialog_close() {
-    if (ns->hasAccess) {
+void MainWindow::authenticate_reply(bool error) {
+    if (!error) {
+        qDebug() << "I have access.";
         get_user_data();
     }
     else {
-        qDebug() << "something wrong with authentication.";
+        LoginDialog loginD(this);
+        loginD.ui->labelError->setText("Authentication error.");
+        loginD.exec();
+        ns->get_access(loginD.get_email(), loginD.get_password());
     }
 }
 

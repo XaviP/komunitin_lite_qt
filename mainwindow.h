@@ -27,6 +27,6 @@ private:
     std::vector<account> accounts;
 
 public slots:
-    void login_dialog_close();
+    void authenticate_reply(bool);
 };
 #endif // MAINWINDOW_H

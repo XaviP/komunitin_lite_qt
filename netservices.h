@@ -11,18 +11,13 @@
 
 #include "account.h"
 
-struct error_reply {
-    bool error;
-    string error_text;
-};
-
 class netServices : public QObject {
 Q_OBJECT
 
 private:
     QNetworkAccessManager *netManager;
     QByteArray authHeaderValue;
-    void get_unknown_accounts(account*, const string&);
+    void get_unknown_accounts(account*, const std::string&);
     void get_call(const QString&, QNetworkReply*&);
 
 public slots:
@@ -40,8 +35,8 @@ public:
     void get_account_transfers(account*);
 
 signals:
-    error_reply access_reply(error_reply);
-//    error_reply accounts_reply(error_reply);
+    void access_reply(bool error);
+    void accounts_reply(bool error);
 //    error_reply balance_reply(error_reply);
 };
 
