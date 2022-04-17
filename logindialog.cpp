@@ -7,7 +7,7 @@ LoginDialog::LoginDialog(QWidget *parent)
 {
     ui->setupUi(this);
     connect(ui->pushButtonLogin, SIGNAL(clicked()),
-            this, SLOT(pushButtonLogin_clicked()), Qt::DirectConnection);
+            this, SLOT(pushButtonLogin_clicked())); //, Qt::DirectConnection);
 }
 
 LoginDialog::~LoginDialog()
@@ -28,22 +28,10 @@ void LoginDialog::pushButtonLogin_clicked()
     if (get_email().empty() || get_password().empty()) {
         qDebug() << "Empty user or password";
     } else {
-//        ui->lineEditEmail->setEnabled(false);
-//        ui->lineEditPassword->setEnabled(false);
-//        ui->pushButtonLogin->setEnabled(false);
-        this->accept();
+        ui->pushButtonLogin->setEnabled(false);
+        emit send_authorization();
     }
 }
 
-//void LoginDialog::authentication_reply(bool error) {
-//    qDebug() << "entering authentication_reply...";
-//    if (error) {
-//        ui->labelError->setText("Some error.");
-//        ui->lineEditEmail->setEnabled(true);
-//        ui->lineEditPassword->setEnabled(true);
-//        ui->pushButtonLogin->setEnabled(true);
-//    } else {
-//        this->accept();
-//    }
-//}
+
 

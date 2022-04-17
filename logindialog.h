@@ -21,9 +21,11 @@ public:
 private:
 
 
-public slots:
+private slots:
     void pushButtonLogin_clicked();
-//    void authentication_reply(bool);
+
+signals:
+    void send_authorization();
 };
 
 #endif // LOGINDIALOG_H

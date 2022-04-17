@@ -22,8 +22,6 @@ private:
 
 public slots:
     void get_access_reply(QNetworkReply*);
-//    void get_accounts_reply(QNetworkReply*);
-//    void get_account_balance_reply(QNetworkReply*);
 
 public:
     explicit netServices(QObject *parent = nullptr);
@@ -36,8 +34,7 @@ public:
 
 signals:
     void access_reply(bool error);
-    void accounts_reply(bool error);
-//    error_reply balance_reply(error_reply);
+
 };
 
 #endif // NETSERVICES_H

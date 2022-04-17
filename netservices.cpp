@@ -44,11 +44,6 @@ void netServices::get_access(const std::string& email, const std::string& passwo
     networkRequest.setHeader(QNetworkRequest::ContentTypeHeader,
                              "application/x-www-form-urlencoded");
 
-//    QEventLoop loop;
-//    QNetworkReply *postReply = netManager->post(networkRequest, postData);
-//    connect(postReply, SIGNAL(finished()), &loop, SLOT(quit()));
-//    loop.exec();
-
     this->netManager->post(networkRequest, postData);
     connect(netManager, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(get_access_reply(QNetworkReply*)));
@@ -62,7 +57,6 @@ void netServices::get_access_reply(QNetworkReply* postReply) {
     }
     else {
         QString strReply = postReply->readAll();
-        qDebug() << "----------\n" << strReply << "\n----------\n";
         QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
         this->authHeaderValue = QString("Bearer " + jsonResponse.object()
                                         ["access_token"].toString()).toUtf8();

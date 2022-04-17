@@ -19,14 +19,19 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void authenticate();
-    void get_user_data();
 
 private:
     Ui::MainWindow *ui;
     netServices *ns;
     std::vector<account> accounts;
+    LoginDialog* loginD;
 
-public slots:
-    void authenticate_reply(bool);
+private slots:
+    void try_authorization();
+    void authorization_reply(bool error);
+    void get_user_data();
+
+signals:
+    void try_get_data();
 };
 #endif // MAINWINDOW_H

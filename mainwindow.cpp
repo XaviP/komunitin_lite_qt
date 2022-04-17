@@ -9,12 +9,17 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
       ns(new netServices),
-      accounts()
+      accounts(),
+      loginD(new LoginDialog)
 {
     ui->setupUi(this);
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    connect(ns, SIGNAL(access_reply(bool)),
-            this, SLOT(authenticate_reply(bool))); //, Qt::QueuedConnection);
+    QObject::connect(loginD, SIGNAL(send_authorization()),
+            this, SLOT(try_authorization()), Qt::QueuedConnection);
+    QObject::connect(ns, SIGNAL(access_reply(bool)),
+            this, SLOT(authorization_reply(bool)));
+    QObject::connect(this, SIGNAL(try_get_data()),
+            this, SLOT(get_user_data()));
 }
 
 MainWindow::~MainWindow()
@@ -24,21 +29,22 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::authenticate() {
-    LoginDialog loginD(this);
-    loginD.exec();
-    ns->get_access(loginD.get_email(), loginD.get_password());
+    loginD->exec();
 }
 
-void MainWindow::authenticate_reply(bool error) {
+void MainWindow::try_authorization() {
+    ns->get_access(loginD->get_email(), loginD->get_password());
+}
+
+void MainWindow::authorization_reply(bool error) {
     if (!error) {
-        qDebug() << "I have access.";
-        get_user_data();
+        loginD->accept();
+        qDebug() << "have access";
+        //emit try_get_data();
     }
     else {
-        LoginDialog loginD(this);
-        loginD.ui->labelError->setText("Authentication error.");
-        loginD.exec();
-        ns->get_access(loginD.get_email(), loginD.get_password());
+        loginD->ui->labelError->setText("Authentication error.");
+        loginD->ui->pushButtonLogin->setEnabled(true);
     }
 }
 
