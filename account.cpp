@@ -12,6 +12,14 @@ string account::print_balance() {
            " " + currency.plural;
 }
 
+string account::print_transfers() {
+    string out = "";
+    for (int i=0; i<(int)transfers.size(); i++) {
+        out += transfers[i].print_transfer();
+    }
+    return out;
+}
+
 string account::print_account() {
     string out = "";
 
@@ -31,10 +39,7 @@ string account::print_account() {
     out += "currency symbol: " + currency.symbol + "\n";
     out += "currency decimals: " + std::to_string(currency.decimals) + "\n";
     out += "transfers :\n";
-
-    for (int i=0; i<(int)transfers.size(); i++) {
-        out += transfers[i].print_transfer();
-    }
+    out += print_transfers();
 
     return out;
  }

@@ -7,7 +7,7 @@ LoginDialog::LoginDialog(QWidget *parent)
 {
     ui->setupUi(this);
     connect(ui->pushButtonLogin, SIGNAL(clicked()),
-            this, SLOT(pushButtonLogin_clicked())); //, Qt::DirectConnection);
+            this, SLOT(pushButtonLogin_clicked()), Qt::UniqueConnection);
 }
 
 LoginDialog::~LoginDialog()
@@ -29,6 +29,9 @@ void LoginDialog::pushButtonLogin_clicked()
         qDebug() << "Empty user or password";
     } else {
         ui->pushButtonLogin->setEnabled(false);
+        ui->lineEditEmail->setEnabled(false);
+        ui->lineEditPassword->setEnabled(false);
+        ui->labelError->setText("Checking autorization...");
         emit send_authorization();
     }
 }

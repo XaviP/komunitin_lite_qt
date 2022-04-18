@@ -46,7 +46,7 @@ void netServices::get_access(const std::string& email, const std::string& passwo
 
     this->netManager->post(networkRequest, postData);
     connect(netManager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(get_access_reply(QNetworkReply*)));
+            this, SLOT(get_access_reply(QNetworkReply*)), Qt::QueuedConnection);
 }
 
 void netServices::get_access_reply(QNetworkReply* postReply) {
@@ -62,6 +62,7 @@ void netServices::get_access_reply(QNetworkReply* postReply) {
                                         ["access_token"].toString()).toUtf8();
         this->hasAccess = true;
         emit access_reply(false);
+
     }
 }
 

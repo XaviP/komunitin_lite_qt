@@ -25,6 +25,7 @@ public:
     vector<transfer> transfers;
 
     string print_balance();
+    string print_transfers();
     string print_account();
 };
 

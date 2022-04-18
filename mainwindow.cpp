@@ -14,12 +14,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    QObject::connect(loginD, SIGNAL(send_authorization()),
-            this, SLOT(try_authorization()), Qt::QueuedConnection);
-    QObject::connect(ns, SIGNAL(access_reply(bool)),
-            this, SLOT(authorization_reply(bool)));
-    QObject::connect(this, SIGNAL(try_get_data()),
-            this, SLOT(get_user_data()));
+    QObject::connect(loginD, SIGNAL(finished(int)),
+            this, SLOT(get_user_data(int)));
 }
 
 MainWindow::~MainWindow()
@@ -29,34 +25,40 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::authenticate() {
-    loginD->exec();
+    QObject::connect(loginD, SIGNAL(send_authorization()),
+            this, SLOT(try_authorization()), Qt::SingleShotConnection);
+    loginD->open();
 }
 
 void MainWindow::try_authorization() {
+    QObject::connect(ns, SIGNAL(access_reply(bool)),
+            this, SLOT(authorization_reply(bool)), Qt::SingleShotConnection);
     ns->get_access(loginD->get_email(), loginD->get_password());
 }
 
 void MainWindow::authorization_reply(bool error) {
     if (!error) {
         loginD->accept();
-        qDebug() << "have access";
-        //emit try_get_data();
     }
     else {
         loginD->ui->labelError->setText("Authentication error.");
         loginD->ui->pushButtonLogin->setEnabled(true);
+        loginD->ui->lineEditEmail->setEnabled(true);
+        loginD->ui->lineEditPassword->setEnabled(true);
+        QObject::connect(loginD, SIGNAL(send_authorization()),
+                this, SLOT(try_authorization()), Qt::SingleShotConnection);
     }
 }
 
-void MainWindow::get_user_data() {
+void MainWindow::get_user_data(int) {
     ns->get_accounts(accounts);
     for (int i=0; i  < (int)accounts.size(); i++) {
         ui->accountComboBox->addItem(QString::fromStdString(accounts[i].account_code));
     }
     ui->nameInsertLabel->setText(QString::fromStdString(accounts[0].member_name));
-    ui->balanceInsertLabel->setText(QString::fromStdString(accounts[0].print_balance()));
-    qDebug() << QString::fromStdString(accounts[0].account_code);
-    ns->get_account_transfers(&accounts[0]);
-    qDebug() << QString::fromStdString(accounts[0].print_account());
+//    ns->get_account_balance(&accounts[0]);
+//    ui->balanceInsertLabel->setText(QString::fromStdString(accounts[0].print_balance()));
+//    ns->get_account_transfers(&accounts[0]);
+//    qDebug() << QString::fromStdString(accounts[0].print_transfers());
 }
 

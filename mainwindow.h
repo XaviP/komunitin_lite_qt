@@ -29,7 +29,7 @@ private:
 private slots:
     void try_authorization();
     void authorization_reply(bool error);
-    void get_user_data();
+    void get_user_data(int);
 
 signals:
     void try_get_data();
