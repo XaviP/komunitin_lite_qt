@@ -16,12 +16,14 @@ MainWindow::MainWindow(QWidget *parent)
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     QObject::connect(loginD, SIGNAL(finished(int)),
             this, SLOT(get_user_data(int)));
+    authenticate();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
     delete ns;
+    delete loginD;
 }
 
 void MainWindow::authenticate() {
@@ -51,14 +53,28 @@ void MainWindow::authorization_reply(bool error) {
 }
 
 void MainWindow::get_user_data(int) {
+    QObject::connect(ns, SIGNAL(accounts_reply(bool)),
+            this, SLOT(get_user_data_reply(bool)), Qt::SingleShotConnection);
     ns->get_accounts(accounts);
-    for (int i=0; i  < (int)accounts.size(); i++) {
-        ui->accountComboBox->addItem(QString::fromStdString(accounts[i].account_code));
-    }
-    ui->nameInsertLabel->setText(QString::fromStdString(accounts[0].member_name));
-//    ns->get_account_balance(&accounts[0]);
-//    ui->balanceInsertLabel->setText(QString::fromStdString(accounts[0].print_balance()));
-//    ns->get_account_transfers(&accounts[0]);
-//    qDebug() << QString::fromStdString(accounts[0].print_transfers());
 }
 
+void MainWindow::get_user_data_reply(bool error) {
+    if (error) {qDebug() << "Error getting user data.";}
+    else {
+        for (int i=0; i  < (int)accounts.size(); i++) {
+            ui->accountComboBox->addItem(QString::fromStdString(accounts[i].account_code));
+        }
+        ui->nameInsertLabel->setText(QString::fromStdString(accounts[0].member_name));
+        QObject::connect(ns, SIGNAL(account_data_reply(bool)),
+                this, SLOT(get_account_data_reply(bool)), Qt::SingleShotConnection);
+        ns->get_account_data(&accounts[0]);
+    }
+}
+
+void MainWindow::get_account_data_reply(bool error) {
+    if (error) {qDebug() << "Error getting account data.";}
+    else {
+        ui->balanceInsertLabel->setText(QString::fromStdString(accounts[0].print_balance()));
+        qDebug() << QString::fromStdString(accounts[0].print_transfers());
+    }
+}

@@ -30,6 +30,8 @@ private slots:
     void try_authorization();
     void authorization_reply(bool error);
     void get_user_data(int);
+    void get_user_data_reply(bool error);
+    void get_account_data_reply(bool error);
 
 signals:
     void try_get_data();

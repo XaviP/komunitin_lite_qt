@@ -17,6 +17,8 @@ Q_OBJECT
 private:
     QNetworkAccessManager *netManager;
     QByteArray authHeaderValue;
+    void get_account_balance(account*);
+    void get_account_transfers(account*);
     void get_unknown_accounts(account*, const std::string&);
     void get_call(const QString&, QNetworkReply*&);
 
@@ -29,11 +31,12 @@ public:
     bool hasAccess;
     void get_access(const std::string&, const std::string&);
     void get_accounts(std::vector<account>&);
-    void get_account_balance(account*);
-    void get_account_transfers(account*);
+    void get_account_data(account*);
 
 signals:
     void access_reply(bool error);
+    void accounts_reply(bool error);
+    void account_data_reply(bool error);
 
 };
 

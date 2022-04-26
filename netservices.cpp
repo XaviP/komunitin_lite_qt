@@ -53,10 +53,12 @@ void netServices::get_access_reply(QNetworkReply* postReply) {
 
     if(postReply->error()) {
         qDebug() << "Error: " << postReply->errorString();
+        postReply->deleteLater();
         emit access_reply(true);
     }
     else {
         QString strReply = postReply->readAll();
+        postReply->deleteLater();
         QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
         this->authHeaderValue = QString("Bearer " + jsonResponse.object()
                                         ["access_token"].toString()).toUtf8();
@@ -71,9 +73,14 @@ void netServices::get_accounts(std::vector<account>& accs)
     QNetworkReply *getReply = nullptr;
     this->get_call(baseApiUrl + "/social/users/me?include=members", getReply);
 
-    if(getReply->error()) {qDebug() << "Error: " << getReply->errorString();}
+    if(getReply->error()) {
+        qDebug() << "Error: " << getReply->errorString();
+        getReply->deleteLater();
+        emit accounts_reply(true);
+        }
     else {
         QString strReply = getReply->readAll();
+        getReply->deleteLater();
         QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
         std::string user_id = jsonResponse.object()["data"].toObject()["id"].
                 toString().toStdString();
@@ -97,17 +104,30 @@ void netServices::get_accounts(std::vector<account>& accs)
                     toObject()["data"].toObject()["id"].toString().toStdString();
             accs[i].group_code = accs[i].account_code.substr(0, 4);
         };
+        emit accounts_reply(false);
     }
 }
+
+void netServices::get_account_data(account* acc) {
+    get_account_balance(acc);
+    get_account_transfers(acc);
+    emit account_data_reply(false);
+}
+
 
 void netServices::get_account_balance(account* acc) {
     QNetworkReply *getReply = nullptr;
     this->get_call(QString::fromStdString(acc->account_link) +
                    "?include=currency", getReply);
 
-    if(getReply->error()) {qDebug() << "Error: " << getReply->errorString();}
+    if(getReply->error()) {
+        qDebug() << "Error: " << getReply->errorString();
+        getReply->deleteLater();
+        emit account_data_reply(true);
+    }
     else {
         QString strReply = getReply->readAll();
+        getReply->deleteLater();
         QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
         acc->balance = jsonResponse.object()["data"].toObject()["attributes"].
                 toObject()["balance"].toDouble();
@@ -132,9 +152,12 @@ void netServices::get_account_transfers(account* acc) {
     this->get_call(url, getReply);
     if(getReply->error()) {
         qDebug() << "Error: " << getReply->errorString();
+        getReply->deleteLater();
+        emit account_data_reply(true);
     }
     else {
         QString strReply = getReply->readAll();
+        getReply->deleteLater();
         QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
         int sizeArray = jsonResponse.object()["data"].toArray().size();
 
@@ -188,6 +211,8 @@ void netServices::get_unknown_accounts(account* acc, const string& comma_list) {
     this->get_call(url, getReply);
     if(getReply->error()) {
         qDebug() << "Error: " << getReply->errorString();
+        getReply->deleteLater();
+        emit account_data_reply(true);
     }
     else {
         QString strReply = getReply->readAll();
@@ -211,7 +236,6 @@ void netServices::get_unknown_accounts(account* acc, const string& comma_list) {
                 }
             }
         }
-
     }
 }
 
