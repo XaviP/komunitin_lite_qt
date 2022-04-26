@@ -9,7 +9,6 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
       ns(new netServices),
-      accounts(),
       loginD(new LoginDialog)
 {
     ui->setupUi(this);
@@ -53,12 +52,15 @@ void MainWindow::authorization_reply(bool error) {
 }
 
 void MainWindow::get_user_data(int) {
-    QObject::connect(ns, SIGNAL(accounts_reply(bool)),
-            this, SLOT(get_user_data_reply(bool)), Qt::SingleShotConnection);
-    ns->get_accounts(accounts);
+    QObject::connect(ns, SIGNAL(accounts_reply(bool,std::vector<account>)),
+            this, SLOT(get_user_data_reply(bool,std::vector<account>)), Qt::SingleShotConnection);
+    ns->get_accounts();
 }
 
-void MainWindow::get_user_data_reply(bool error) {
+void MainWindow::get_user_data_reply(bool error, std::vector<account> accs) {
+    qDebug() << "get_user_data_reply";
+
+    this->accounts = accs;
     if (error) {qDebug() << "Error getting user data.";}
     else {
         for (int i=0; i  < (int)accounts.size(); i++) {
@@ -66,7 +68,7 @@ void MainWindow::get_user_data_reply(bool error) {
         }
         ui->nameInsertLabel->setText(QString::fromStdString(accounts[0].member_name));
         QObject::connect(ns, SIGNAL(account_data_reply(bool)),
-                this, SLOT(get_account_data_reply(bool)), Qt::SingleShotConnection);
+                this, SLOT(get_account_data_reply(bool))); //, Qt::SingleShotConnection);
         ns->get_account_data(&accounts[0]);
     }
 }

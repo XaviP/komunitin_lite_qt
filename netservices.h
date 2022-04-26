@@ -24,18 +24,19 @@ private:
 
 public slots:
     void get_access_reply(QNetworkReply*);
+    void get_accounts_reply(QNetworkReply*);
 
 public:
     explicit netServices(QObject *parent = nullptr);
     ~netServices();
     bool hasAccess;
     void get_access(const std::string&, const std::string&);
-    void get_accounts(std::vector<account>&);
+    void get_accounts();
     void get_account_data(account*);
 
 signals:
     void access_reply(bool error);
-    void accounts_reply(bool error);
+    void accounts_reply(bool error, std::vector<account>);
     void account_data_reply(bool error);
 
 };

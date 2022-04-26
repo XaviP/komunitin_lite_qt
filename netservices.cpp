@@ -44,7 +44,7 @@ void netServices::get_access(const std::string& email, const std::string& passwo
     networkRequest.setHeader(QNetworkRequest::ContentTypeHeader,
                              "application/x-www-form-urlencoded");
 
-    this->netManager->post(networkRequest, postData);
+    netManager->post(networkRequest, postData);
     connect(netManager, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(get_access_reply(QNetworkReply*)), Qt::QueuedConnection);
 }
@@ -68,15 +68,25 @@ void netServices::get_access_reply(QNetworkReply* postReply) {
     }
 }
 
-void netServices::get_accounts(std::vector<account>& accs)
+void netServices::get_accounts()
 {
-    QNetworkReply *getReply = nullptr;
-    this->get_call(baseApiUrl + "/social/users/me?include=members", getReply);
+    QNetworkRequest networkRequest(QUrl(baseApiUrl +
+                                        "/social/users/me?include=members"));
+    networkRequest.setHeader(QNetworkRequest::ContentTypeHeader,
+                             "application/vnd.api+json");
+    networkRequest.setRawHeader("Authorization", this->authHeaderValue);
 
+    netManager->get(networkRequest);
+    connect(netManager, SIGNAL(finished(QNetworkReply*)),
+            this, SLOT(get_accounts_reply(QNetworkReply*))); // Qt::QueuedConnection crashes.
+}
+
+void netServices::get_accounts_reply(QNetworkReply* getReply) {
+    std::vector<account> accs;
     if(getReply->error()) {
         qDebug() << "Error: " << getReply->errorString();
         getReply->deleteLater();
-        emit accounts_reply(true);
+        emit accounts_reply(true, accs);
         }
     else {
         QString strReply = getReply->readAll();
@@ -104,7 +114,7 @@ void netServices::get_accounts(std::vector<account>& accs)
                     toObject()["data"].toObject()["id"].toString().toStdString();
             accs[i].group_code = accs[i].account_code.substr(0, 4);
         };
-        emit accounts_reply(false);
+        emit accounts_reply(false, accs);
     }
 }
 
@@ -238,6 +248,8 @@ void netServices::get_unknown_accounts(account* acc, const string& comma_list) {
         }
     }
 }
+
+
 
 void netServices::get_call(const QString& url, QNetworkReply*& getReply) {
     QUrl getUrl = QUrl(url);
