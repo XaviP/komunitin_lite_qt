@@ -58,25 +58,32 @@ void MainWindow::get_user_data(int) {
 }
 
 void MainWindow::get_user_data_reply(bool error, std::vector<account> accs) {
-    qDebug() << "get_user_data_reply";
-
-    this->accounts = accs;
+    this->accounts = accs; // move
     if (error) {qDebug() << "Error getting user data.";}
     else {
         for (int i=0; i  < (int)accounts.size(); i++) {
             ui->accountComboBox->addItem(QString::fromStdString(accounts[i].account_code));
         }
         ui->nameInsertLabel->setText(QString::fromStdString(accounts[0].member_name));
-        QObject::connect(ns, SIGNAL(account_data_reply(bool)),
-                this, SLOT(get_account_data_reply(bool))); //, Qt::SingleShotConnection);
-        ns->get_account_data(&accounts[0]);
+        QObject::connect(ns, SIGNAL(account_balance_reply(bool)),
+                this, SLOT(get_account_balance_reply(bool))); //, Qt::SingleShotConnection);
+        ns->get_account_balance(&accounts[0]);
     }
 }
 
-void MainWindow::get_account_data_reply(bool error) {
+void MainWindow::get_account_balance_reply(bool error) {
     if (error) {qDebug() << "Error getting account data.";}
     else {
         ui->balanceInsertLabel->setText(QString::fromStdString(accounts[0].print_balance()));
+        QObject::connect(ns, SIGNAL(account_transfers_reply(bool,std::string)),
+                this, SLOT(get_account_transfers_reply(bool,std::string))); //, Qt::SingleShotConnection);
+        ns->get_account_transfers(&accounts[0]);
+    }
+}
+
+void MainWindow::get_account_transfers_reply(bool error, std::string comma_list) {
+    if (error) {qDebug() << "Error getting transfers data.";}
+    else {
         qDebug() << QString::fromStdString(accounts[0].print_transfers());
     }
 }

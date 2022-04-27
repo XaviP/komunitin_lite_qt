@@ -31,9 +31,8 @@ private slots:
     void authorization_reply(bool error);
     void get_user_data(int);
     void get_user_data_reply(bool error, std::vector<account>);
-    void get_account_data_reply(bool error);
+    void get_account_balance_reply(bool error);
+    void get_account_transfers_reply(bool error, std::string);
 
-signals:
-    void try_get_data();
 };
 #endif // MAINWINDOW_H

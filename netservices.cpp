@@ -70,11 +70,9 @@ void netServices::get_access_reply(QNetworkReply* postReply) {
 
 void netServices::get_accounts()
 {
-    QNetworkRequest networkRequest(QUrl(baseApiUrl +
-                                        "/social/users/me?include=members"));
-    networkRequest.setHeader(QNetworkRequest::ContentTypeHeader,
-                             "application/vnd.api+json");
-    networkRequest.setRawHeader("Authorization", this->authHeaderValue);
+    QNetworkRequest networkRequest(
+        QUrl(baseApiUrl + "/social/users/me?include=members"));
+    prepare_request(networkRequest);
 
     netManager->get(networkRequest);
     connect(netManager, SIGNAL(finished(QNetworkReply*)),
@@ -120,50 +118,67 @@ void netServices::get_accounts_reply(QNetworkReply* getReply) {
 
 void netServices::get_account_data(account* acc) {
     get_account_balance(acc);
-    get_account_transfers(acc);
-    emit account_data_reply(false);
+//    get_account_transfers(acc);
+
 }
 
 
 void netServices::get_account_balance(account* acc) {
-    QNetworkReply *getReply = nullptr;
-    this->get_call(QString::fromStdString(acc->account_link) +
-                   "?include=currency", getReply);
+    current_account = acc;
+    QNetworkRequest networkRequest(
+        QUrl(baseApiUrl + QString::fromStdString(acc->account_link) +
+             "?include=currency"));
+    prepare_request(networkRequest);
 
+    netManager->get(networkRequest);
+    connect(netManager, SIGNAL(finished(QNetworkReply*)),
+            this, SLOT(get_account_balance_reply(QNetworkReply*)));
+}
+
+void netServices::get_account_balance_reply(QNetworkReply* getReply) {
     if(getReply->error()) {
         qDebug() << "Error: " << getReply->errorString();
         getReply->deleteLater();
-        emit account_data_reply(true);
+        emit account_balance_reply(true);
     }
     else {
         QString strReply = getReply->readAll();
         getReply->deleteLater();
         QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
-        acc->balance = jsonResponse.object()["data"].toObject()["attributes"].
+        current_account->balance = jsonResponse.object()["data"].toObject()["attributes"].
                 toObject()["balance"].toDouble();
-        acc->currency.id =  jsonResponse.object()["included"].toArray()[0].
+        current_account->currency.id =  jsonResponse.object()["included"].toArray()[0].
                 toObject()["id"].toString().toStdString();
         QJsonObject attr = jsonResponse.object()["included"].toArray()[0].
                 toObject()["attributes"].toObject();
-        acc->currency.name = attr["name"].toString().toStdString();
-        acc->currency.plural = attr["namePlural"].toString().toStdString();
-        acc->currency.symbol = attr["symbol"].toString().toStdString();
-        acc->currency.decimals = attr["decimals"].toString().toInt();
+        current_account->currency.name = attr["name"].toString().toStdString();
+        current_account->currency.plural = attr["namePlural"].toString().toStdString();
+        current_account->currency.symbol = attr["symbol"].toString().toStdString();
+        current_account->currency.decimals = attr["decimals"].toString().toInt();
+        emit account_balance_reply(false);
     }
 }
 
 void netServices::get_account_transfers(account* acc) {
+    current_account = acc;
     QString url = baseApiUrl + "/accounting/" +
             QString::fromStdString(acc->group_code) +
             "/transfers?filter[account]=" +
             QString::fromStdString(acc->account_id);
+    QNetworkRequest networkRequest(url);
+    prepare_request(networkRequest);
 
-    QNetworkReply *getReply = nullptr;
-    this->get_call(url, getReply);
+    netManager->get(networkRequest);
+    connect(netManager, SIGNAL(finished(QNetworkReply*)),
+            this, SLOT(get_account_transfers_reply(QNetworkReply*)));
+
+}
+
+void netServices::get_account_transfers_reply(QNetworkReply* getReply) {
     if(getReply->error()) {
         qDebug() << "Error: " << getReply->errorString();
         getReply->deleteLater();
-        emit account_data_reply(true);
+        emit account_transfers_reply(true, "");
     }
     else {
         QString strReply = getReply->readAll();
@@ -175,8 +190,8 @@ void netServices::get_account_transfers(account* acc) {
         std::vector<string> unknown_accounts;
         for (int i=0; i < sizeArray; i++) {
             trans = jsonResponse.object()["data"].toArray()[i].toObject();
-            acc->transfers.push_back(transfer(trans["id"].toString().toStdString()));
-            transfer* p = &acc->transfers.back();
+            current_account->transfers.push_back(transfer(trans["id"].toString().toStdString()));
+            transfer* p = &current_account->transfers.back();
             p->amount = trans["attributes"].toObject()["amount"].toInt();
             p->meta = trans["attributes"].toObject()["meta"].
                     toString().toStdString();
@@ -188,20 +203,20 @@ void netServices::get_account_transfers(account* acc) {
                     toString().toStdString();
             p->payer_account_id = trans["relationships"].toObject()["payer"].
                     toObject()["data"].toObject()["id"].toString().toStdString();
-            if (p->payer_account_id == acc->account_id) {
-                p->payer_account_code = acc->account_code;
+            if (p->payer_account_id == current_account->account_id) {
+                p->payer_account_code = current_account->account_code;
             }
             else {unknown_accounts.push_back(p->payer_account_id);}
             p->payee_account_id = trans["relationships"].toObject()["payee"].
                     toObject()["data"].toObject()["id"].toString().toStdString();
-            if (p->payee_account_id == acc->account_id) {
-                p->payee_account_code = acc->account_code;
+            if (p->payee_account_id == current_account->account_id) {
+                p->payee_account_code = current_account->account_code;
             }
             else {unknown_accounts.push_back(p->payee_account_id);}
             p->currency.id = trans["relationships"].toObject()["currency"].
                     toObject()["data"].toObject()["id"].toString().toStdString();
-            if (p->currency.id == acc->currency.id) {
-                p->currency = acc->currency;
+            if (p->currency.id == current_account->currency.id) {
+                p->currency = current_account->currency;
             }
         }
         string comma_list;
@@ -209,7 +224,7 @@ void netServices::get_account_transfers(account* acc) {
             comma_list += unknown_accounts[j];
             if (unknown_accounts[j] != unknown_accounts.back()) comma_list += ",";
         }
-        get_unknown_accounts(acc, comma_list);
+        emit account_transfers_reply(false, comma_list);
     }
 
 }
@@ -222,7 +237,7 @@ void netServices::get_unknown_accounts(account* acc, const string& comma_list) {
     if(getReply->error()) {
         qDebug() << "Error: " << getReply->errorString();
         getReply->deleteLater();
-        emit account_data_reply(true);
+//        emit account_data_reply(true);
     }
     else {
         QString strReply = getReply->readAll();
@@ -249,7 +264,11 @@ void netServices::get_unknown_accounts(account* acc, const string& comma_list) {
     }
 }
 
-
+void netServices::prepare_request(QNetworkRequest& networkRequest) {
+    networkRequest.setHeader(QNetworkRequest::ContentTypeHeader,
+                             "application/vnd.api+json");
+    networkRequest.setRawHeader("Authorization", this->authHeaderValue);
+}
 
 void netServices::get_call(const QString& url, QNetworkReply*& getReply) {
     QUrl getUrl = QUrl(url);
@@ -260,6 +279,6 @@ void netServices::get_call(const QString& url, QNetworkReply*& getReply) {
 
     QEventLoop loop;
     getReply = this->netManager->get(networkRequest);
-    connect(getReply, SIGNAL(finished()), &loop, SLOT(quit()));
+    connect(getReply, SIGNAL(finished()), &loop, SLOT(quit()), Qt::SingleShotConnection);
     loop.exec();
 }
