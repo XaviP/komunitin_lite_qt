@@ -54,6 +54,7 @@ void MainWindow::authorization_reply(bool error) {
 void MainWindow::get_user_data(int) {
     QObject::connect(ns, SIGNAL(accounts_reply(bool,std::vector<account>)),
             this, SLOT(get_user_data_reply(bool,std::vector<account>)), Qt::SingleShotConnection);
+    qDebug() << "going to get user data...";
     ns->get_accounts();
 }
 
@@ -66,7 +67,8 @@ void MainWindow::get_user_data_reply(bool error, std::vector<account> accs) {
         }
         ui->nameInsertLabel->setText(QString::fromStdString(accounts[0].member_name));
         QObject::connect(ns, SIGNAL(account_balance_reply(bool)),
-                this, SLOT(get_account_balance_reply(bool))); //, Qt::SingleShotConnection);
+                this, SLOT(get_account_balance_reply(bool)), Qt::SingleShotConnection);
+        qDebug() << "going to get account balance...";
         ns->get_account_balance(&accounts[0]);
     }
 }
@@ -76,8 +78,9 @@ void MainWindow::get_account_balance_reply(bool error) {
     else {
         ui->balanceInsertLabel->setText(QString::fromStdString(accounts[0].print_balance()));
         QObject::connect(ns, SIGNAL(account_transfers_reply(bool,std::string)),
-                this, SLOT(get_account_transfers_reply(bool,std::string))); //, Qt::SingleShotConnection);
-        ns->get_account_transfers(&accounts[0]);
+                this, SLOT(get_account_transfers_reply(bool,std::string)), Qt::SingleShotConnection);
+        qDebug() << "going to get account transfers...";
+        //ns->get_account_transfers(&accounts[0]);
     }
 }
 

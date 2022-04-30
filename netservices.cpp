@@ -125,8 +125,9 @@ void netServices::get_account_data(account* acc) {
 
 void netServices::get_account_balance(account* acc) {
     current_account = acc;
+    qDebug() << QString::fromStdString(acc->account_link);
     QNetworkRequest networkRequest(
-        QUrl(baseApiUrl + QString::fromStdString(acc->account_link) +
+        QUrl(QString::fromStdString(acc->account_link) +
              "?include=currency"));
     prepare_request(networkRequest);
 
