@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <vector>
+#include <QStateMachine>
 #include <QMainWindow>
 #include "logindialog.h"
 #include "netservices.h"
@@ -18,21 +19,19 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    void authenticate();
 
 private:
     Ui::MainWindow *ui;
     netServices *ns;
-    std::vector<account> accounts;
     LoginDialog* loginD;
+    QStateMachine machine;
 
 private slots:
     void try_authorization();
-    void authorization_reply(bool error);
-    void get_user_data(int);
-    void get_user_data_reply(bool error, std::vector<account>);
-    void get_account_balance_reply(bool error);
-    void get_account_transfers_reply(bool error, std::string);
+    void authorization_error();
+    void show_accounts_data();
+    void show_account_balance();
+    void show_account_transfers();
 
 };
 #endif // MAINWINDOW_H

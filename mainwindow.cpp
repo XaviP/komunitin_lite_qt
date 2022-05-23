@@ -1,4 +1,5 @@
 #include <vector>
+#include <QStateMachine>
 #include "account.h"
 #include "mainwindow.h"
 #include "logindialog.h"
@@ -13,9 +14,39 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    QObject::connect(loginD, SIGNAL(finished(int)),
-            this, SLOT(get_user_data(int)));
-    authenticate();
+
+    QStateMachine machine;
+    QState *state0NoAccess = new QState();
+    QState *state1TryAccess = new QState();
+    QState *state2HasAccess = new QState();
+    QState *state3HasAccounts = new QState();
+    QState *state4HasBalance = new QState();
+    QState *state5HasTransfers = new QState();
+    QState *state6HasAllData = new QState();
+    state0NoAccess->addTransition(loginD, SIGNAL(send_authorization()), state1TryAccess);
+    state1TryAccess->addTransition(ns, SIGNAL(error_auth()), state0NoAccess);
+    state1TryAccess->addTransition(ns, SIGNAL(has_access()), state2HasAccess);
+    state2HasAccess->addTransition(ns, SIGNAL(has_accounts()), state3HasAccounts);
+    state3HasAccounts->addTransition(ns, SIGNAL(has_balance()), state4HasBalance);
+    state4HasBalance->addTransition(ns, SIGNAL(has_transfers()), state5HasTransfers);
+    state5HasTransfers->addTransition(ns, SIGNAL(has_all_data()), state6HasAllData);
+    machine.addState(state0NoAccess);
+    machine.addState(state1TryAccess);
+    machine.addState(state2HasAccess);
+    machine.addState(state3HasAccounts);
+    machine.addState(state4HasBalance);
+    machine.addState(state5HasTransfers);
+    machine.addState(state6HasAllData);
+    machine.setInitialState(state0NoAccess);
+    machine.start();
+    QObject::connect(state1TryAccess, &QState::entered, this, &MainWindow::try_authorization);
+    QObject::connect(state2HasAccess, &QState::entered, ns, &netServices::get_accounts);
+    QObject::connect(state3HasAccounts, &QState::entered, ns, &netServices::get_account_balance);
+    QObject::connect(state4HasBalance, &QState::entered, ns, &netServices::get_account_transfers);
+//    QObject::connect(state5HasTransfers, &QState::entered, ns, &netServices::get_unknown_accounts);
+//    QObject::connect(state6HasAllData, &QState::entered, this, &netServices::get_accounts);
+
+    loginD->open();
 }
 
 MainWindow::~MainWindow()
@@ -25,68 +56,31 @@ MainWindow::~MainWindow()
     delete loginD;
 }
 
-void MainWindow::authenticate() {
-    QObject::connect(loginD, SIGNAL(send_authorization()),
-            this, SLOT(try_authorization()), Qt::SingleShotConnection);
-    loginD->open();
-}
-
 void MainWindow::try_authorization() {
-    QObject::connect(ns, SIGNAL(access_reply(bool)),
-            this, SLOT(authorization_reply(bool)), Qt::SingleShotConnection);
+    qDebug() << "going to call ns->get access";
     ns->get_access(loginD->get_email(), loginD->get_password());
 }
 
-void MainWindow::authorization_reply(bool error) {
-    if (!error) {
-        loginD->accept();
-    }
-    else {
-        loginD->ui->labelError->setText("Authentication error.");
-        loginD->ui->pushButtonLogin->setEnabled(true);
-        loginD->ui->lineEditEmail->setEnabled(true);
-        loginD->ui->lineEditPassword->setEnabled(true);
-        QObject::connect(loginD, SIGNAL(send_authorization()),
-                this, SLOT(try_authorization()), Qt::SingleShotConnection);
-    }
+void MainWindow::authorization_error() {
+    loginD->ui->labelError->setText("Authentication error.");
+    loginD->ui->pushButtonLogin->setEnabled(true);
+    loginD->ui->lineEditEmail->setEnabled(true);
+    loginD->ui->lineEditPassword->setEnabled(true);
+//    QObject::connect(loginD, SIGNAL(send_authorization()),
+//            this, SLOT(try_authorization()), Qt::SingleShotConnection);
 }
 
-void MainWindow::get_user_data(int) {
-    QObject::connect(ns, SIGNAL(accounts_reply(bool,std::vector<account>)),
-            this, SLOT(get_user_data_reply(bool,std::vector<account>)), Qt::SingleShotConnection);
-    qDebug() << "going to get user data...";
-    ns->get_accounts();
+void MainWindow::show_accounts_data() {
+    for (int i=0; i  < (int)ns->accounts.size(); i++) {
+        ui->accountComboBox->addItem(QString::fromStdString(ns->accounts[i].account_code));
+    }
+    ui->nameInsertLabel->setText(QString::fromStdString(ns->accounts[ns->index_current_acc].member_name));
 }
 
-void MainWindow::get_user_data_reply(bool error, std::vector<account> accs) {
-    this->accounts = accs; // move
-    if (error) {qDebug() << "Error getting user data.";}
-    else {
-        for (int i=0; i  < (int)accounts.size(); i++) {
-            ui->accountComboBox->addItem(QString::fromStdString(accounts[i].account_code));
-        }
-        ui->nameInsertLabel->setText(QString::fromStdString(accounts[0].member_name));
-        QObject::connect(ns, SIGNAL(account_balance_reply(bool)),
-                this, SLOT(get_account_balance_reply(bool)), Qt::SingleShotConnection);
-        qDebug() << "going to get account balance...";
-        ns->get_account_balance(&accounts[0]);
-    }
+void MainWindow::show_account_balance() {
+    ui->balanceInsertLabel->setText(QString::fromStdString(ns->accounts[ns->index_current_acc].print_balance()));
 }
 
-void MainWindow::get_account_balance_reply(bool error) {
-    if (error) {qDebug() << "Error getting account data.";}
-    else {
-        ui->balanceInsertLabel->setText(QString::fromStdString(accounts[0].print_balance()));
-        QObject::connect(ns, SIGNAL(account_transfers_reply(bool,std::string)),
-                this, SLOT(get_account_transfers_reply(bool,std::string)), Qt::SingleShotConnection);
-        qDebug() << "going to get account transfers...";
-        //ns->get_account_transfers(&accounts[0]);
-    }
-}
-
-void MainWindow::get_account_transfers_reply(bool error, std::string comma_list) {
-    if (error) {qDebug() << "Error getting transfers data.";}
-    else {
-        qDebug() << QString::fromStdString(accounts[0].print_transfers());
-    }
+void MainWindow::show_account_transfers() {
+    qDebug() << QString::fromStdString(ns->accounts[ns->index_current_acc].print_transfers());
 }
