@@ -23,7 +23,7 @@ public:
 private:
     Ui::MainWindow *ui;
     netServices *ns;
-    LoginDialog* loginD;
+    LoginDialog loginD;
     QStateMachine machine;
     QState *state0NoAccess;
     QState *state1TryAccess;
@@ -32,6 +32,7 @@ private:
     QState *state4HasBalance;
     QState *state5HasTransfers;
     QState *state6HasAllData;
+    void create_state_machine();
 
 private slots:
     void try_authorization();
