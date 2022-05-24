@@ -15,6 +15,9 @@ struct komunitin_settings
     QString oauth2ClientId; // "odoo-pos-komunitin";
     QString oauth2ClientPassword; //"xxx-xxx-xxx-xxx";
     QString oauth2Scope; // "komunitin_accounting komunitin_social profile";
+    QString user_email;
+    QString access_token;
+    QString refresh_token;
 };
 
 QT_BEGIN_NAMESPACE
@@ -28,7 +31,6 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    void closeEvent(QCloseEvent *event);
 
 private:
     Ui::MainWindow *ui;
@@ -45,6 +47,7 @@ private:
     void create_state_machine();
     void loadSettings();
     void saveSettings();
+    void closeEvent(QCloseEvent *event);
     komunitin_settings kSettings;
 
 private slots:

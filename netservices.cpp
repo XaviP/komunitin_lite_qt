@@ -65,10 +65,9 @@ void netServices::get_access_reply(QNetworkReply* postReply) {
         QString strReply = postReply->readAll();
         postReply->deleteLater();
         QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
-        this->authHeaderValue = QString("Bearer " + jsonResponse.object()
-                                        ["access_token"].toString()).toUtf8();
-        this->hasAccess = true;
-        qDebug() << "going to emit has_access";
+        access_token = jsonResponse.object()["access_token"].toString();
+        refresh_token = jsonResponse.object()["refresh_token"].toString();
+        hasAccess = true;
         emit has_access();
     }
 }
@@ -270,5 +269,5 @@ void netServices::get_unknown_accounts_reply(QNetworkReply* getReply) {
 void netServices::prepare_request(QNetworkRequest& networkRequest) {
     networkRequest.setHeader(QNetworkRequest::ContentTypeHeader,
                              "application/vnd.api+json");
-    networkRequest.setRawHeader("Authorization", this->authHeaderValue);
+    networkRequest.setRawHeader("Authorization", QString("Bearer " + access_token).toUtf8());
 }

@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     create_state_machine();
+    loadSettings();
     ui->statusbar->showMessage("Enter credentials to try authorization.");
     loginD.open();
 }
@@ -37,6 +38,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::try_authorization() {
     ui->statusbar->showMessage("Trying authorization...");
+    kSettings.user_email = QString::fromStdString(loginD.get_email());
     ns->get_access(loginD.get_email(), loginD.get_password());
 }
 
@@ -53,6 +55,7 @@ void MainWindow::show_accounts_data() {
     for (int i=0; i  < (int)ns->accounts.size(); i++) {
         ui->accountComboBox->addItem(QString::fromStdString(ns->accounts[i].account_code));
     }
+    ui->accountComboBox->setCurrentIndex(ns->index_current_acc);
     ui->nameInsertLabel->setText(QString::fromStdString(ns->accounts[ns->index_current_acc].member_name));
     ui->statusbar->showMessage("Loading balance data...");
 }
@@ -108,17 +111,17 @@ void MainWindow::create_state_machine() {
 void MainWindow::loadSettings()
 {
   QSettings settings;
-//  m_prefs.width = settings.value("width", 10).toInt();
-//  m_prefs.height = settings.value("height", 10).toInt();
-//  m_prefs.mines = settings.value("mines", 10).toInt();
+  kSettings.user_email = settings.value("user_email", "").toString();
+  kSettings.access_token = settings.value("access_token", "").toString();
+  kSettings.refresh_token = settings.value("refresh_token", "").toString();
 }
 
 void MainWindow::saveSettings()
 {
     QSettings settings;
-//    settings.setValue("width", m_prefs.width);
-//    settings.setValue("height", m_prefs.height);
-//    settings.setValue("mines", m_prefs.mines);
+    settings.setValue("user_email", kSettings.user_email);
+    settings.setValue("access_token", kSettings.access_token);
+    settings.setValue("refresh_token", kSettings.refresh_token);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
