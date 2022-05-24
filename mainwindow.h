@@ -8,6 +8,15 @@
 #include "netservices.h"
 #include "account.h"
 
+struct komunitin_settings
+{
+    QString baseApiUrl; // "https://demo.integralces.net/ces/api";
+    QString oauth2TokenUrl; // "https://demo.integralces.net/oauth2/token";
+    QString oauth2ClientId; // "odoo-pos-komunitin";
+    QString oauth2ClientPassword; //"xxx-xxx-xxx-xxx";
+    QString oauth2Scope; // "komunitin_accounting komunitin_social profile";
+};
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -19,6 +28,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void closeEvent(QCloseEvent *event);
 
 private:
     Ui::MainWindow *ui;
@@ -33,6 +43,9 @@ private:
     QState *state5HasTransfers;
     QState *state6HasAllData;
     void create_state_machine();
+    void loadSettings();
+    void saveSettings();
+    komunitin_settings kSettings;
 
 private slots:
     void try_authorization();

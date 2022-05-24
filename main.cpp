@@ -7,6 +7,9 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+    a.setOrganizationName("Komunitin");
+    a.setOrganizationDomain("komunitin");
+    a.setApplicationName("komunitin_lite_qt");
 
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();

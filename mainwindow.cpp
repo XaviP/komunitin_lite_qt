@@ -1,5 +1,7 @@
 #include <vector>
 #include <QStateMachine>
+#include <QSettings>
+#include <QCloseEvent>
 #include "account.h"
 #include "mainwindow.h"
 #include "logindialog.h"
@@ -101,4 +103,26 @@ void MainWindow::create_state_machine() {
     QObject::connect(state4HasBalance, &QState::entered, ns, &netServices::get_account_transfers);
     QObject::connect(state5HasTransfers, &QState::entered, ns, &netServices::get_unknown_accounts);
     QObject::connect(state6HasAllData, &QState::entered, this, &MainWindow::show_account_transfers);
+}
+
+void MainWindow::loadSettings()
+{
+  QSettings settings;
+//  m_prefs.width = settings.value("width", 10).toInt();
+//  m_prefs.height = settings.value("height", 10).toInt();
+//  m_prefs.mines = settings.value("mines", 10).toInt();
+}
+
+void MainWindow::saveSettings()
+{
+    QSettings settings;
+//    settings.setValue("width", m_prefs.width);
+//    settings.setValue("height", m_prefs.height);
+//    settings.setValue("mines", m_prefs.mines);
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    saveSettings();
+    event->accept();
 }
