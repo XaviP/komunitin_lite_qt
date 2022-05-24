@@ -25,6 +25,13 @@ private:
     netServices *ns;
     LoginDialog* loginD;
     QStateMachine machine;
+    QState *state0NoAccess;
+    QState *state1TryAccess;
+    QState *state2HasAccess;
+    QState *state3HasAccounts;
+    QState *state4HasBalance;
+    QState *state5HasTransfers;
+    QState *state6HasAllData;
 
 private slots:
     void try_authorization();

@@ -32,11 +32,12 @@ public:
     bool hasAccess;
     std::vector<account> accounts;
     int index_current_acc;
+    string comma_list;
     void get_access(const std::string&, const std::string&);
     void get_accounts();
     void get_account_balance();
     void get_account_transfers();
-    void get_unknown_accounts(const std::string&);
+    void get_unknown_accounts();
 
 signals:
     void has_access();

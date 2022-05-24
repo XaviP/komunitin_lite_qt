@@ -20,8 +20,13 @@ const char oauth2ClientId[] = "odoo-pos-komunitin";
 //const char oauth2ClientPassword[] = "xxx-xxx-xxx-xxx";
 const char oauth2Scope[] = "komunitin_accounting komunitin_social profile";
 
-netServices::netServices(QObject *parent) : QObject(parent),
-    netManager(new QNetworkAccessManager(this)), hasAccess(false)
+netServices::netServices(QObject *parent)
+    : QObject(parent),
+    netManager(new QNetworkAccessManager(this)),
+    hasAccess(false),
+    accounts(),
+    index_current_acc(0),
+    comma_list("")
 {}
 
 netServices::~netServices() { delete netManager; }
@@ -46,7 +51,7 @@ void netServices::get_access(const std::string& email, const std::string& passwo
 
     netManager->post(networkRequest, postData);
     connect(netManager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(get_access_reply(QNetworkReply*)), Qt::QueuedConnection);
+            this, SLOT(get_access_reply(QNetworkReply*)), Qt::SingleShotConnection);
 }
 
 void netServices::get_access_reply(QNetworkReply* postReply) {
@@ -75,7 +80,7 @@ void netServices::get_accounts() {
 
     netManager->get(networkRequest);
     connect(netManager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(get_accounts_reply(QNetworkReply*))); // Qt::QueuedConnection crashes.
+            this, SLOT(get_accounts_reply(QNetworkReply*)), Qt::SingleShotConnection);
 }
 
 void netServices::get_accounts_reply(QNetworkReply* getReply) {
@@ -124,7 +129,7 @@ void netServices::get_account_balance() {
 
     netManager->get(networkRequest);
     connect(netManager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(get_account_balance_reply(QNetworkReply*)));
+            this, SLOT(get_account_balance_reply(QNetworkReply*)), Qt::SingleShotConnection);
 }
 
 void netServices::get_account_balance_reply(QNetworkReply* getReply) {
@@ -161,7 +166,7 @@ void netServices::get_account_transfers() {
 
     netManager->get(networkRequest);
     connect(netManager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(get_account_transfers_reply(QNetworkReply*)));
+            this, SLOT(get_account_transfers_reply(QNetworkReply*)), Qt::SingleShotConnection);
 
 }
 
@@ -210,7 +215,6 @@ void netServices::get_account_transfers_reply(QNetworkReply* getReply) {
                 p->currency = accounts[index_current_acc].currency;
             }
         }
-        string comma_list;
         for(int j= 0; j < (int)unknown_accounts.size(); j++) {
             comma_list += unknown_accounts[j];
             if (unknown_accounts[j] != unknown_accounts.back()) comma_list += ",";
@@ -220,7 +224,7 @@ void netServices::get_account_transfers_reply(QNetworkReply* getReply) {
 
 }
 
-void netServices::get_unknown_accounts(const string& comma_list) {
+void netServices::get_unknown_accounts() {
     QString url = baseApiUrl + "/social/" + QString::fromStdString(accounts[index_current_acc].group_code) +
             "/members?filter[account]=" + QString::fromStdString(comma_list);
     QNetworkRequest networkRequest(url);
@@ -228,7 +232,7 @@ void netServices::get_unknown_accounts(const string& comma_list) {
 
     netManager->get(networkRequest);
     connect(netManager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(get_unknown_accounts_reply(QNetworkReply*)));
+            this, SLOT(get_unknown_accounts_reply(QNetworkReply*)), Qt::SingleShotConnection);
 }
 
 void netServices::get_unknown_accounts_reply(QNetworkReply* getReply) {
