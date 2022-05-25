@@ -1,20 +1,13 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <vector>
 #include <QStateMachine>
 #include <QMainWindow>
 #include "logindialog.h"
 #include "netservices.h"
-#include "account.h"
 
 struct komunitin_settings
 {
-    QString baseApiUrl; // "https://demo.integralces.net/ces/api";
-    QString oauth2TokenUrl; // "https://demo.integralces.net/oauth2/token";
-    QString oauth2ClientId; // "odoo-pos-komunitin";
-    QString oauth2ClientPassword; //"xxx-xxx-xxx-xxx";
-    QString oauth2Scope; // "komunitin_accounting komunitin_social profile";
     QString user_email;
     QString access_token;
     QString refresh_token;

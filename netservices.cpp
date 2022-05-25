@@ -242,6 +242,7 @@ void netServices::get_unknown_accounts_reply(QNetworkReply* getReply) {
     }
     else {
         QString strReply = getReply->readAll();
+        getReply->deleteLater();
         QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
         int sizeArray = jsonResponse.object()["data"].toArray().size();
         QJsonObject da;

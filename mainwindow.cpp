@@ -1,10 +1,7 @@
-#include <vector>
 #include <QStateMachine>
 #include <QSettings>
 #include <QCloseEvent>
-#include "account.h"
 #include "mainwindow.h"
-#include "logindialog.h"
 #include "./ui_mainwindow.h"
 #include "ui_logindialog.h"
 
