@@ -2,6 +2,7 @@
 #include <QSettings>
 #include <QCloseEvent>
 #include "mainwindow.h"
+#include "transfer.h"
 #include "./ui_mainwindow.h"
 #include "ui_logindialog.h"
 
@@ -64,7 +65,24 @@ void MainWindow::show_account_balance() {
 
 void MainWindow::show_account_transfers() {
     ui->statusbar->showMessage("All data is loaded.");
-    qDebug() << QString::fromStdString(ns->accounts[ns->index_current_acc].print_transfers());
+    int rows = ns->accounts[ns->index_current_acc].transfers.size();
+    ui->tableWidget->setRowCount(rows);
+    for (int row = 0; row < rows; row++) {
+        transfer trans = ns->accounts[ns->index_current_acc].transfers[row];
+        string data[6] = {
+            trans.created,
+            trans.meta,
+            trans.payer_account_code,
+            trans.payee_account_code,
+            trans.print_amount(),
+            trans.state
+        };
+        for (int column = 0; column < 6; column++) {
+            QTableWidgetItem * cellItem = new QTableWidgetItem();
+            cellItem->setData(Qt::DisplayRole, QString::fromStdString(data[column]));
+            ui->tableWidget->setItem( row, column, cellItem );
+        }
+    }
 }
 
 void MainWindow::create_state_machine() {

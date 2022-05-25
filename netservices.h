@@ -5,7 +5,6 @@
 #include <vector>
 #include <QObject>
 #include <QString>
-#include <QByteArray>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 
@@ -16,7 +15,6 @@ Q_OBJECT
 
 private:
     QNetworkAccessManager *netManager;
-    QByteArray authHeaderValue;
     QString access_token;
     QString refresh_token;
     void prepare_request(QNetworkRequest&);
