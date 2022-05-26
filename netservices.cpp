@@ -120,7 +120,6 @@ void netServices::get_accounts_reply(QNetworkReply* getReply) {
 }
 
 void netServices::get_account_balance() {
-    qDebug() << QString::fromStdString(accounts[index_current_acc].account_link);
     QNetworkRequest networkRequest(
         QUrl(QString::fromStdString(accounts[index_current_acc].account_link) +
              "?include=currency"));
@@ -180,6 +179,10 @@ void netServices::get_account_transfers_reply(QNetworkReply* getReply) {
         getReply->deleteLater();
         QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
         int sizeArray = jsonResponse.object()["data"].toArray().size();
+
+        if (!accounts[index_current_acc].transfers.empty()) {
+            accounts[index_current_acc].transfers.clear();
+        }
 
         QJsonObject trans;
         std::vector<string> unknown_accounts;

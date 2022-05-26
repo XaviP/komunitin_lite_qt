@@ -94,8 +94,6 @@ void MainWindow::show_account_transfers() {
 void MainWindow::changeAccount(int index) {
     if (index != ns->index_current_acc) {
         ns->index_current_acc = index;
-        qDebug() << "Account changed: " + QString::fromStdString(
-                        ns->accounts[ns->index_current_acc].account_code);
         emit change_account();
     }
 }
