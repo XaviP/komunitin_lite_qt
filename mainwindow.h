@@ -49,6 +49,10 @@ private slots:
     void show_accounts_data();
     void show_account_balance();
     void show_account_transfers();
+    void changeAccount(int);
+
+signals:
+    void change_account();
 
 };
 #endif // MAINWINDOW_H
