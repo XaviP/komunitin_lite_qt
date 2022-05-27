@@ -15,6 +15,9 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    QStringList labelHeaders;
+    labelHeaders << "created" << "about" << "from" << "to" << "amount" << "state";
+    ui->tableWidget->setHorizontalHeaderLabels( labelHeaders );
     create_state_machine();
     loadSettings();
     connect(ui->accountComboBox, SIGNAL(currentIndexChanged(int)),
@@ -76,7 +79,7 @@ void MainWindow::show_account_transfers() {
     for (int row = 0; row < rows; row++) {
         transfer trans = ns->accounts[ns->index_current_acc].transfers[row];
         string data[6] = {
-            trans.created,
+            trans.created.substr(0, 10),
             trans.meta,
             trans.payer_account_code,
             trans.payee_account_code,

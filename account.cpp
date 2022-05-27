@@ -1,3 +1,5 @@
+#include <sstream>
+#include <iomanip>
 #include <string>
 #include "account.h"
 
@@ -8,8 +10,10 @@ account::account(const std::string& uid, const std::string& mid)
 string account::print_balance() {
     int factor = 1;
     for (int i=0; i<currency.decimals; i++) { factor *= 10; }
-    return std::to_string(float(balance)/float(factor)) +
-           " " + currency.plural;
+
+    std::stringstream stream;
+    stream << std::fixed << std::setprecision(currency.decimals) << (float(balance)/float(factor));
+    return stream.str() + " " + currency.plural;
 }
 
 string account::print_transfers() {
