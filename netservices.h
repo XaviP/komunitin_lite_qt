@@ -12,9 +12,9 @@
 
 struct komunitin_settings
 {
-    QString user_email;
-    QString access_token;
-    QString refresh_token;
+    QString user_email = "";
+    QString access_token = "";
+    QString refresh_token = "";
 };
 
 class netServices : public QObject {
@@ -34,7 +34,7 @@ public slots:
     void get_unknown_accounts_reply(QNetworkReply*);
 
 public:
-    explicit netServices(komunitin_settings*, QObject *parent = nullptr);
+    explicit netServices(QObject *parent = nullptr);
     ~netServices();
     komunitin_settings* kSettingsP;
     bool hasAccess;

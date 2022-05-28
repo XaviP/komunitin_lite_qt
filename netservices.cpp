@@ -20,19 +20,15 @@ const char oauth2ClientId[] = "odoo-pos-komunitin";
 //const char oauth2ClientPassword[] = "xxx-xxx-xxx-xxx";
 const char oauth2Scope[] = "komunitin_accounting komunitin_social profile";
 
-netServices::netServices(komunitin_settings* kSP, QObject *parent)
+netServices::netServices(QObject *parent)
     : QObject(parent),
-    kSettingsP(kSP),
     netManager(new QNetworkAccessManager(this)),
+    kSettingsP(),
     hasAccess(false),
     accounts(),
     index_current_acc(0),
     comma_list("")
-{
-    qDebug() << "user_email: " << kSettingsP->user_email;
-    qDebug() << "access_token: " << kSettingsP->access_token;
-    qDebug() << "refresh_token: " << kSettingsP->refresh_token;
-}
+{}
 
 netServices::~netServices() { delete netManager; }
 

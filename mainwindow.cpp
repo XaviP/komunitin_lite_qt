@@ -9,11 +9,16 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
+      ns(new netServices),
+      kSettings(),
       loginD(this),
       machine()
 {
     loadSettings();
-    ns = new netServices(&kSettings);
+    ns->kSettingsP = &kSettings;
+    qDebug() << "user_email: " << kSettings.user_email;
+    qDebug() << "access_token: " << kSettings.access_token;
+    qDebug() << "refresh_token: " << kSettings.refresh_token;
     ui->setupUi(this);
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     QStringList labelHeaders;
