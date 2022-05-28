@@ -10,11 +10,19 @@
 
 #include "account.h"
 
+struct komunitin_settings
+{
+    QString user_email;
+    QString access_token;
+    QString refresh_token;
+};
+
 class netServices : public QObject {
 Q_OBJECT
 
 private:
     QNetworkAccessManager *netManager;
+    komunitin_settings* kSettingsP;
     QString access_token;
     QString refresh_token;
     void prepare_request(QNetworkRequest&);
@@ -27,7 +35,7 @@ public slots:
     void get_unknown_accounts_reply(QNetworkReply*);
 
 public:
-    explicit netServices(QObject *parent = nullptr);
+    explicit netServices(komunitin_settings*, QObject *parent = nullptr);
     ~netServices();
     bool hasAccess;
     std::vector<account> accounts;

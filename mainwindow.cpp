@@ -9,17 +9,17 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
-      ns(new netServices),
       loginD(),
       machine()
 {
+    loadSettings();
+    ns = new netServices(&kSettings);
     ui->setupUi(this);
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     QStringList labelHeaders;
     labelHeaders << "created" << "about" << "from" << "to" << "amount" << "state";
     ui->tableWidget->setHorizontalHeaderLabels( labelHeaders );
     create_state_machine();
-    loadSettings();
     connect(ui->accountComboBox, SIGNAL(currentIndexChanged(int)),
                 this, SLOT(changeAccount(int)));
     ui->statusbar->showMessage("Enter credentials to try authorization.");

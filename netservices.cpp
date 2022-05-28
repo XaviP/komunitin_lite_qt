@@ -20,19 +20,26 @@ const char oauth2ClientId[] = "odoo-pos-komunitin";
 //const char oauth2ClientPassword[] = "xxx-xxx-xxx-xxx";
 const char oauth2Scope[] = "komunitin_accounting komunitin_social profile";
 
-netServices::netServices(QObject *parent)
+netServices::netServices(komunitin_settings* kSP, QObject *parent)
     : QObject(parent),
+    kSettingsP(kSP),
     netManager(new QNetworkAccessManager(this)),
     hasAccess(false),
     accounts(),
     index_current_acc(0),
     comma_list("")
-{}
+{
+    qDebug() << "user_email: " << kSettingsP->user_email;
+    qDebug() << "access_token: " << kSettingsP->access_token;
+    qDebug() << "refresh_token: " << kSettingsP->refresh_token;
+}
 
 netServices::~netServices() { delete netManager; }
 
 void netServices::get_access(const std::string& email, const std::string& password)
 {
+    kSettingsP->user_email = QString::fromStdString(email);
+
     QUrlQuery query;
     query.addQueryItem("grant_type","password");
     query.addQueryItem("username", QString::fromStdString(email));
@@ -67,7 +74,10 @@ void netServices::get_access_reply(QNetworkReply* postReply) {
         QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
         access_token = jsonResponse.object()["access_token"].toString();
         refresh_token = jsonResponse.object()["refresh_token"].toString();
+        kSettingsP->access_token = access_token;
+        kSettingsP->refresh_token = refresh_token;
         hasAccess = true;
+
         emit has_access();
     }
 }

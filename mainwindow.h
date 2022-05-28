@@ -6,13 +6,6 @@
 #include "logindialog.h"
 #include "netservices.h"
 
-struct komunitin_settings
-{
-    QString user_email;
-    QString access_token;
-    QString refresh_token;
-};
-
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
