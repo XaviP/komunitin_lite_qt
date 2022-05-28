@@ -20,7 +20,7 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    netServices *ns;
+    netServices ns;
     LoginDialog loginD;
     QStateMachine machine;
     QState *state0NoAccess;
