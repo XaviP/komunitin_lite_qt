@@ -22,7 +22,6 @@ Q_OBJECT
 
 private:
     QNetworkAccessManager *netManager;
-    komunitin_settings* kSettingsP;
     QString access_token;
     QString refresh_token;
     void prepare_request(QNetworkRequest&);
@@ -37,6 +36,7 @@ public slots:
 public:
     explicit netServices(komunitin_settings*, QObject *parent = nullptr);
     ~netServices();
+    komunitin_settings* kSettingsP;
     bool hasAccess;
     std::vector<account> accounts;
     int index_current_acc;

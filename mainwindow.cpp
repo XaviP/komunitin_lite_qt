@@ -9,7 +9,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
-      loginD(),
+      loginD(this),
       machine()
 {
     loadSettings();
