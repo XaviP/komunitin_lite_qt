@@ -19,6 +19,8 @@ MainWindow::MainWindow(QWidget *parent)
     qDebug() << "user_email: " << kSettings.user_email;
     qDebug() << "access_token: " << kSettings.access_token;
     qDebug() << "refresh_token: " << kSettings.refresh_token;
+    qDebug() << "created: " << kSettings.created;
+    qDebug() << "expires_in: " << kSettings.expires_in;
     ui->setupUi(this);
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     QStringList labelHeaders;
@@ -150,6 +152,8 @@ void MainWindow::loadSettings()
   kSettings.user_email = settings.value("user_email", "").toString();
   kSettings.access_token = settings.value("access_token", "").toString();
   kSettings.refresh_token = settings.value("refresh_token", "").toString();
+  kSettings.created = settings.value("created", 0).toInt();
+  kSettings.expires_in = settings.value("expires_in", 3600).toInt();
 }
 
 void MainWindow::saveSettings()
@@ -158,6 +162,8 @@ void MainWindow::saveSettings()
     settings.setValue("user_email", kSettings.user_email);
     settings.setValue("access_token", kSettings.access_token);
     settings.setValue("refresh_token", kSettings.refresh_token);
+    settings.setValue("created", kSettings.created);
+    settings.setValue("expires_in", kSettings.expires_in);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

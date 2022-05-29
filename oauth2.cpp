@@ -53,11 +53,57 @@ void Oauth2::get_access_reply(QNetworkReply* postReply) {
     else {
         QString strReply = postReply->readAll();
         postReply->deleteLater();
+        qDebug() << strReply;
         QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
         access_token = jsonResponse.object()["access_token"].toString();
         refresh_token = jsonResponse.object()["refresh_token"].toString();
         kSettingsP->access_token = access_token;
         kSettingsP->refresh_token = refresh_token;
+        kSettingsP->created = QDateTime::currentSecsSinceEpoch();
+        kSettingsP->expires_in = jsonResponse.object()["expires_in"].toInt();
+        hasAccess = true;
+
+        emit has_access();
+    }
+}
+
+void Oauth2::refresh_tokens() {
+    QUrlQuery query;
+    query.addQueryItem("grant_type", "refresh_token");
+    query.addQueryItem("refresh_token", refresh_token);
+    query.addQueryItem("client_id", oauth2ClientId);
+//    query.addQueryItem("client_secret", oauth2ClientPassword);
+    query.addQueryItem("scope", oauth2Scope);
+
+    QByteArray postData;
+    postData = query.toString(QUrl::FullyEncoded).toUtf8();
+
+    QUrl tokenUrl = QUrl(oauth2TokenUrl);
+    QNetworkRequest networkRequest(tokenUrl);
+    networkRequest.setHeader(QNetworkRequest::ContentTypeHeader,
+                             "application/x-www-form-urlencoded");
+
+    netM->post(networkRequest, postData);
+    connect(netM, SIGNAL(finished(QNetworkReply*)),
+            this, SLOT(refresh_tokens_reply(QNetworkReply*)), Qt::SingleShotConnection);
+}
+
+void Oauth2::refresh_tokens_reply(QNetworkReply* postReply) {
+    if(postReply->error()) {
+        qDebug() << "Error: " << postReply->errorString();
+        postReply->deleteLater();
+        emit error_auth();
+    }
+    else {
+        QString strReply = postReply->readAll();
+        postReply->deleteLater();
+        QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
+        access_token = jsonResponse.object()["access_token"].toString();
+        refresh_token = jsonResponse.object()["refresh_token"].toString();
+        kSettingsP->access_token = access_token;
+        kSettingsP->refresh_token = refresh_token;
+        kSettingsP->created = QDateTime::currentSecsSinceEpoch();
+        kSettingsP->expires_in = jsonResponse.object()["expires_in"].toInt();
         hasAccess = true;
 
         emit has_access();

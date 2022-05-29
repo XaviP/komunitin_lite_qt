@@ -9,6 +9,8 @@ struct komunitin_settings
     QString user_email = "";
     QString access_token = "";
     QString refresh_token = "";
+    int created;
+    int expires_in;
 };
 
 class Oauth2 : public QObject {
@@ -27,9 +29,11 @@ public:
 
 private slots:
     void get_access_reply(QNetworkReply*);
+    void refresh_tokens_reply(QNetworkReply*);
 
 public slots:
     void get_access(const std::string&, const std::string&);
+    void refresh_tokens();
 
 signals:
     void has_access();
