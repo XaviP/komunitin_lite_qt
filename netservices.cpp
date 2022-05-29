@@ -15,16 +15,11 @@
 #include "transfer.h"
 
 QString baseApiUrl = "https://demo.integralces.net/ces/api";
-const char oauth2TokenUrl[] = "https://demo.integralces.net/oauth2/token";
-const char oauth2ClientId[] = "odoo-pos-komunitin";
-//const char oauth2ClientPassword[] = "xxx-xxx-xxx-xxx";
-const char oauth2Scope[] = "komunitin_accounting komunitin_social profile";
 
 netServices::netServices(QObject *parent)
     : QObject(parent),
     netManager(new QNetworkAccessManager(this)),
-    kSettingsP(),
-    hasAccess(false),
+    oauth2(netManager),
     accounts(),
     index_current_acc(0),
     comma_list("")
@@ -32,56 +27,10 @@ netServices::netServices(QObject *parent)
 
 netServices::~netServices() { delete netManager; }
 
-void netServices::get_access(const std::string& email, const std::string& password)
-{
-    kSettingsP->user_email = QString::fromStdString(email);
-
-    QUrlQuery query;
-    query.addQueryItem("grant_type","password");
-    query.addQueryItem("username", QString::fromStdString(email));
-    query.addQueryItem("password", QString::fromStdString(password));
-    query.addQueryItem("client_id", oauth2ClientId);
-//    query.addQueryItem("client_secret", oauth2ClientPassword);
-    query.addQueryItem("scope", oauth2Scope);
-
-    QByteArray postData;
-    postData = query.toString(QUrl::FullyEncoded).toUtf8();
-
-    QUrl tokenUrl = QUrl(oauth2TokenUrl);
-    QNetworkRequest networkRequest(tokenUrl);
-    networkRequest.setHeader(QNetworkRequest::ContentTypeHeader,
-                             "application/x-www-form-urlencoded");
-
-    netManager->post(networkRequest, postData);
-    connect(netManager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(get_access_reply(QNetworkReply*)), Qt::SingleShotConnection);
-}
-
-void netServices::get_access_reply(QNetworkReply* postReply) {
-
-    if(postReply->error()) {
-        qDebug() << "Error: " << postReply->errorString();
-        postReply->deleteLater();
-        emit error_auth();
-    }
-    else {
-        QString strReply = postReply->readAll();
-        postReply->deleteLater();
-        QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
-        access_token = jsonResponse.object()["access_token"].toString();
-        refresh_token = jsonResponse.object()["refresh_token"].toString();
-        kSettingsP->access_token = access_token;
-        kSettingsP->refresh_token = refresh_token;
-        hasAccess = true;
-
-        emit has_access();
-    }
-}
-
 void netServices::get_accounts() {
     QNetworkRequest networkRequest(
         QUrl(baseApiUrl + "/social/users/me?include=members"));
-    prepare_request(networkRequest);
+    oauth2.prepare_request(networkRequest);
 
     netManager->get(networkRequest);
     connect(netManager, SIGNAL(finished(QNetworkReply*)),
@@ -129,7 +78,7 @@ void netServices::get_account_balance() {
     QNetworkRequest networkRequest(
         QUrl(QString::fromStdString(accounts[index_current_acc].account_link) +
              "?include=currency"));
-    prepare_request(networkRequest);
+    oauth2.prepare_request(networkRequest);
 
     netManager->get(networkRequest);
     connect(netManager, SIGNAL(finished(QNetworkReply*)),
@@ -166,7 +115,7 @@ void netServices::get_account_transfers() {
             "/transfers?filter[account]=" +
             QString::fromStdString(accounts[index_current_acc].account_id);
     QNetworkRequest networkRequest(url);
-    prepare_request(networkRequest);
+    oauth2.prepare_request(networkRequest);
 
     netManager->get(networkRequest);
     connect(netManager, SIGNAL(finished(QNetworkReply*)),
@@ -236,7 +185,7 @@ void netServices::get_unknown_accounts() {
     QString url = baseApiUrl + "/social/" + QString::fromStdString(accounts[index_current_acc].group_code) +
             "/members?filter[account]=" + QString::fromStdString(comma_list);
     QNetworkRequest networkRequest(url);
-    prepare_request(networkRequest);
+    oauth2.prepare_request(networkRequest);
 
     netManager->get(networkRequest);
     connect(netManager, SIGNAL(finished(QNetworkReply*)),
@@ -274,10 +223,4 @@ void netServices::get_unknown_accounts_reply(QNetworkReply* getReply) {
         }
         emit has_all_data();
     }
-}
-
-void netServices::prepare_request(QNetworkRequest& networkRequest) {
-    networkRequest.setHeader(QNetworkRequest::ContentTypeHeader,
-                             "application/vnd.api+json");
-    networkRequest.setRawHeader("Authorization", QString("Bearer " + access_token).toUtf8());
 }

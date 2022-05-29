@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
       machine()
 {
     loadSettings();
-    ns.kSettingsP = &kSettings;
+    ns.oauth2.kSettingsP = &kSettings;
     qDebug() << "user_email: " << kSettings.user_email;
     qDebug() << "access_token: " << kSettings.access_token;
     qDebug() << "refresh_token: " << kSettings.refresh_token;
@@ -46,7 +46,7 @@ MainWindow::~MainWindow()
 void MainWindow::try_authorization() {
     ui->statusbar->showMessage("Trying authorization...");
     kSettings.user_email = QString::fromStdString(loginD.get_email());
-    ns.get_access(loginD.get_email(), loginD.get_password());
+    ns.oauth2.get_access(loginD.get_email(), loginD.get_password());
 }
 
 void MainWindow::authorization_error() {
@@ -115,8 +115,8 @@ void MainWindow::create_state_machine() {
     QState *state6HasAllData = new QState();
 
     state0NoAccess->addTransition(&loginD, SIGNAL(send_authorization()), state1TryAccess);
-    state1TryAccess->addTransition(&ns, SIGNAL(error_auth()), state0NoAccess);
-    state1TryAccess->addTransition(&ns, SIGNAL(has_access()), state2HasAccess);
+    state1TryAccess->addTransition(&ns.oauth2, SIGNAL(error_auth()), state0NoAccess);
+    state1TryAccess->addTransition(&ns.oauth2, SIGNAL(has_access()), state2HasAccess);
     state2HasAccess->addTransition(&ns, SIGNAL(has_accounts()), state3HasAccounts);
     state3HasAccounts->addTransition(&ns, SIGNAL(has_balance()), state4HasBalance);
     state4HasBalance->addTransition(&ns, SIGNAL(has_transfers()), state5HasTransfers);
@@ -134,7 +134,7 @@ void MainWindow::create_state_machine() {
     machine.start();
 
     QObject::connect(state1TryAccess, &QState::entered, this, &MainWindow::try_authorization);
-    QObject::connect(&ns, &netServices::error_auth, this, &MainWindow::authorization_error);
+    QObject::connect(&ns.oauth2, &Oauth2::error_auth, this, &MainWindow::authorization_error);
     QObject::connect(state2HasAccess, &QState::entered, &ns, &netServices::get_accounts);
     QObject::connect(state3HasAccounts, &QState::entered, this, &MainWindow::show_accounts_data);
     QObject::connect(state3HasAccounts, &QState::entered, &ns, &netServices::get_account_balance);

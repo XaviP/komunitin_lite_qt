@@ -26,6 +26,8 @@ set(PROJECT_SOURCES
         account.cpp
         transfer.h
         transfer.cpp
+        oauth2.h
+        oauth2.cpp
         netservices.h
         netservices.cpp
         logindialog.h
