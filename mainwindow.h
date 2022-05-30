@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QStateMachine>
+#include <QHistoryState>
 #include <QMainWindow>
 #include "logindialog.h"
 #include "netservices.h"
@@ -21,22 +22,32 @@ public:
 private:
     Ui::MainWindow *ui;
     netServices ns;
+    komunitin_settings kSettings;
     LoginDialog loginD;
     QStateMachine machine;
-    QState *state0NoAccess;
-    QState *state1TryAccess;
-    QState *state2HasAccess;
-    QState *state3HasAccounts;
-    QState *state4HasBalance;
-    QState *state5HasTransfers;
-    QState *state6HasAllData;
+    bool firstTimeShown;
+    QState *s1;
+    QHistoryState *s1H;
+    QState *s10NoAccess;
+    QState *s11CheckTokens;
+    QState *s12HasAccess;
+    QState *s13HasAccounts;
+    QState *s14HasBalance;
+    QState *s15HasTransfers;
+    QState *s16HasAllData;
+    QState *s2;
+    QState *s20ShowDialog;
+    QState *s21TryAuth;
+    QState *s22HasAccess;
     void create_state_machine();
+    void showEvent(QShowEvent*);
     void loadSettings();
     void saveSettings();
     void closeEvent(QCloseEvent *event);
-    komunitin_settings kSettings;
+
 
 private slots:
+    void ask_for_new_auth();
     void try_authorization();
     void authorization_error();
     void show_accounts_data();
@@ -45,6 +56,7 @@ private slots:
     void changeAccount(int);
 
 signals:
+    void window_shown();
     void change_account();
 
 };

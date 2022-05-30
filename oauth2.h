@@ -25,6 +25,7 @@ public:
     Oauth2(QNetworkAccessManager*, QObject *parent = nullptr);
     bool hasAccess;
     komunitin_settings* kSettingsP;
+    void check_tokens();
     void prepare_request(QNetworkRequest&);
 
 private slots:
@@ -36,6 +37,7 @@ public slots:
     void refresh_tokens();
 
 signals:
+    void new_auth();
     void has_access();
     void error_auth();
 };

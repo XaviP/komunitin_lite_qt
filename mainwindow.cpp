@@ -1,5 +1,5 @@
-#include <QStateMachine>
 #include <QSettings>
+#include <QTimer>
 #include <QCloseEvent>
 #include "mainwindow.h"
 #include "transfer.h"
@@ -12,37 +12,54 @@ MainWindow::MainWindow(QWidget *parent)
       ns(),
       kSettings(),
       loginD(this),
-      machine()
+      machine(),
+      firstTimeShown(true)
 {
     loadSettings();
     ns.oauth2.kSettingsP = &kSettings;
-    qDebug() << "user_email: " << kSettings.user_email;
-    qDebug() << "access_token: " << kSettings.access_token;
-    qDebug() << "refresh_token: " << kSettings.refresh_token;
-    qDebug() << "created: " << kSettings.created;
-    qDebug() << "expires_in: " << kSettings.expires_in;
+    create_state_machine();
+
     ui->setupUi(this);
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    QStringList labelHeaders;
-    labelHeaders << "created" << "about" << "from" << "to" << "amount" << "state";
-    ui->tableWidget->setHorizontalHeaderLabels( labelHeaders );
-    create_state_machine();
     connect(ui->accountComboBox, SIGNAL(currentIndexChanged(int)),
                 this, SLOT(changeAccount(int)));
-    ui->statusbar->showMessage("Enter credentials to try authorization.");
-    loginD.open();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
-    delete state0NoAccess;
-    delete state1TryAccess;
-    delete state2HasAccess ;
-    delete state3HasAccounts;
-    delete state4HasBalance;
-    delete state5HasTransfers;
-    delete state6HasAllData;
+    delete s1;
+    delete s1H;
+    delete s10NoAccess;
+    delete s11CheckTokens;
+    delete s12HasAccess;
+    delete s13HasAccounts;
+    delete s14HasBalance;
+    delete s15HasTransfers;
+    delete s16HasAllData;
+    delete s2;
+    delete s20ShowDialog;
+    delete s21TryAuth;
+    delete s22HasAccess;
+}
+
+void MainWindow::showEvent(QShowEvent *e) {
+   QMainWindow::showEvent(e);
+   if (firstTimeShown == true) {
+      firstTimeShown = false;
+
+      // wait 100ms (non-blocking) for QApplication::exec()
+      // to get the state machine really started.
+      QEventLoop loop;
+      QTimer::singleShot(100, &loop, SLOT(quit()));
+      loop.exec();
+
+      emit window_shown();
+   }
+}
+
+void MainWindow::ask_for_new_auth() {
+    loginD.open();
 }
 
 void MainWindow::try_authorization() {
@@ -52,11 +69,15 @@ void MainWindow::try_authorization() {
 }
 
 void MainWindow::authorization_error() {
-    loginD.ui->labelError->setText("Authentication error.");
-    loginD.ui->pushButtonLogin->setEnabled(true);
-    loginD.ui->lineEditEmail->setEnabled(true);
-    loginD.ui->lineEditPassword->setEnabled(true);
-    ui->statusbar->showMessage("Enter credentials to try again.");
+    if (loginD.isVisible()) {
+        loginD.ui->labelError->setText("Authentication error.");
+        loginD.ui->pushButtonLogin->setEnabled(true);
+        loginD.ui->lineEditEmail->setEnabled(true);
+        loginD.ui->lineEditPassword->setEnabled(true);
+        ui->statusbar->showMessage("Enter credentials to try again.");
+    } else {
+        loginD.open();
+    }
 }
 
 void MainWindow::show_accounts_data() {
@@ -79,6 +100,10 @@ void MainWindow::show_account_balance() {
 }
 
 void MainWindow::show_account_transfers() {
+    QStringList labelHeaders;
+    labelHeaders << "created" << "about" << "from" << "to" << "amount" << "state";
+    ui->tableWidget->setHorizontalHeaderLabels( labelHeaders );
+
     ui->statusbar->showMessage("All data is loaded.");
     int rows = ns.accounts[ns.index_current_acc].transfers.size();
     ui->tableWidget->setRowCount(rows);
@@ -108,42 +133,58 @@ void MainWindow::changeAccount(int index) {
 }
 
 void MainWindow::create_state_machine() {
-    QState *state0NoAccess = new QState();
-    QState *state1TryAccess = new QState();
-    QState *state2HasAccess = new QState();
-    QState *state3HasAccounts = new QState();
-    QState *state4HasBalance = new QState();
-    QState *state5HasTransfers = new QState();
-    QState *state6HasAllData = new QState();
+    // group s1: flow with valid tokens
+    QState *s1 = new QState();
+    QState *s10NoAccess = new QState(s1);
+    QState *s11CheckTokens = new QState(s1);
+    QState *s12HasAccess = new QState(s1);
+    QState *s13HasAccounts = new QState(s1);
+    QState *s14HasBalance = new QState(s1);
+    QState *s15HasTransfers = new QState(s1);
+    QState *s16HasAllData = new QState(s1);
 
-    state0NoAccess->addTransition(&loginD, SIGNAL(send_authorization()), state1TryAccess);
-    state1TryAccess->addTransition(&ns.oauth2, SIGNAL(error_auth()), state0NoAccess);
-    state1TryAccess->addTransition(&ns.oauth2, SIGNAL(has_access()), state2HasAccess);
-    state2HasAccess->addTransition(&ns, SIGNAL(has_accounts()), state3HasAccounts);
-    state3HasAccounts->addTransition(&ns, SIGNAL(has_balance()), state4HasBalance);
-    state4HasBalance->addTransition(&ns, SIGNAL(has_transfers()), state5HasTransfers);
-    state5HasTransfers->addTransition(&ns, SIGNAL(has_all_data()), state6HasAllData);
-    state6HasAllData->addTransition(this, SIGNAL(change_account()), state3HasAccounts);
+    s1->setInitialState(s10NoAccess);
+    QHistoryState *s1H = new QHistoryState(s1);
 
-    machine.addState(state0NoAccess);
-    machine.addState(state1TryAccess);
-    machine.addState(state2HasAccess);
-    machine.addState(state3HasAccounts);
-    machine.addState(state4HasBalance);
-    machine.addState(state5HasTransfers);
-    machine.addState(state6HasAllData);
-    machine.setInitialState(state0NoAccess);
+    // group s2: email/passwd authentication
+    QState *s2 = new QState();
+    QState *s20ShowDialog = new QState(s2);
+    QState *s21TryAuth = new QState(s2);
+    s2->setInitialState(s20ShowDialog);
+
+    s10NoAccess->addTransition(this, SIGNAL(window_shown()), s11CheckTokens);
+    s11CheckTokens->addTransition(&ns.oauth2, SIGNAL(has_access()), s12HasAccess);
+    s12HasAccess->addTransition(&ns, SIGNAL(has_accounts()), s13HasAccounts);
+    s13HasAccounts->addTransition(&ns, SIGNAL(has_balance()), s14HasBalance);
+    s14HasBalance->addTransition(&ns, SIGNAL(has_transfers()), s15HasTransfers);
+    s15HasTransfers->addTransition(&ns, SIGNAL(has_all_data()), s16HasAllData);
+    s16HasAllData->addTransition(this, SIGNAL(change_account()), s13HasAccounts);
+
+    s20ShowDialog->addTransition(&loginD, SIGNAL(send_authorization()), s21TryAuth);
+    s21TryAuth->addTransition(&ns.oauth2, SIGNAL(error_auth()), s20ShowDialog);
+
+    s1->addTransition(&ns.oauth2, SIGNAL(new_auth()), s2);
+    s2->addTransition(&ns.oauth2, SIGNAL(has_access()), s1H);
+
+    machine.addState(s1);
+    machine.addState(s2);
+    machine.setInitialState(s1);
     machine.start();
 
-    QObject::connect(state1TryAccess, &QState::entered, this, &MainWindow::try_authorization);
+    QObject::connect(s11CheckTokens, &QState::entered, &ns.oauth2, &Oauth2::check_tokens);
+    QObject::connect(s12HasAccess, &QState::entered, &ns, &netServices::get_accounts);
+    QObject::connect(s13HasAccounts, &QState::entered, this, &MainWindow::show_accounts_data);
+    QObject::connect(s13HasAccounts, &QState::entered, &ns, &netServices::get_account_balance);
+    QObject::connect(s14HasBalance, &QState::entered, this, &MainWindow::show_account_balance);
+    QObject::connect(s14HasBalance, &QState::entered, &ns, &netServices::get_account_transfers);
+    QObject::connect(s15HasTransfers, &QState::entered, &ns, &netServices::get_unknown_accounts);
+    QObject::connect(s16HasAllData, &QState::entered, this, &MainWindow::show_account_transfers);
+
+
+    QObject::connect(s20ShowDialog, &QState::entered, this, &MainWindow::ask_for_new_auth);
+    QObject::connect(&loginD, &LoginDialog::send_authorization, this, &MainWindow::try_authorization);
     QObject::connect(&ns.oauth2, &Oauth2::error_auth, this, &MainWindow::authorization_error);
-    QObject::connect(state2HasAccess, &QState::entered, &ns, &netServices::get_accounts);
-    QObject::connect(state3HasAccounts, &QState::entered, this, &MainWindow::show_accounts_data);
-    QObject::connect(state3HasAccounts, &QState::entered, &ns, &netServices::get_account_balance);
-    QObject::connect(state4HasBalance, &QState::entered, this, &MainWindow::show_account_balance);
-    QObject::connect(state4HasBalance, &QState::entered, &ns, &netServices::get_account_transfers);
-    QObject::connect(state5HasTransfers, &QState::entered, &ns, &netServices::get_unknown_accounts);
-    QObject::connect(state6HasAllData, &QState::entered, this, &MainWindow::show_account_transfers);
+
 }
 
 void MainWindow::loadSettings()
