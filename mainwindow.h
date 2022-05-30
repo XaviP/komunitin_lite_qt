@@ -55,6 +55,10 @@ private slots:
     void show_account_transfers();
     void changeAccount(int);
 
+    void on_actionQuit_triggered();
+    void on_actionNew_transaction_triggered();
+    void on_actionNew_User_triggered();
+
 signals:
     void window_shown();
     void change_account();

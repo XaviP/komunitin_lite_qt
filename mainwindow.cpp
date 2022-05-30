@@ -212,3 +212,17 @@ void MainWindow::closeEvent(QCloseEvent *event)
     saveSettings();
     event->accept();
 }
+
+void MainWindow::on_actionNew_User_triggered() {
+    qDebug() << "New user is under development.";
+    ui->statusbar->showMessage("New user is under development.");
+}
+
+void MainWindow::on_actionNew_transaction_triggered() {
+    qDebug() << "New transaction is under development.";
+    ui->statusbar->showMessage("New transaction is under development.");
+}
+
+void MainWindow::on_actionQuit_triggered() {
+    QApplication::quit();
+}
