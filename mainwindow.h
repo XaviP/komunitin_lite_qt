@@ -62,6 +62,7 @@ private slots:
 signals:
     void window_shown();
     void change_account();
+    void new_user();
 
 };
 #endif // MAINWINDOW_H

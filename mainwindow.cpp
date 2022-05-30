@@ -159,6 +159,7 @@ void MainWindow::create_state_machine() {
     s14HasBalance->addTransition(&ns, SIGNAL(has_transfers()), s15HasTransfers);
     s15HasTransfers->addTransition(&ns, SIGNAL(has_all_data()), s16HasAllData);
     s16HasAllData->addTransition(this, SIGNAL(change_account()), s13HasAccounts);
+    s16HasAllData->addTransition(this, SIGNAL(new_user()), s11CheckTokens);
 
     s20ShowDialog->addTransition(&loginD, SIGNAL(send_authorization()), s21TryAuth);
     s21TryAuth->addTransition(&ns.oauth2, SIGNAL(error_auth()), s20ShowDialog);
@@ -214,8 +215,24 @@ void MainWindow::closeEvent(QCloseEvent *event)
 }
 
 void MainWindow::on_actionNew_User_triggered() {
-    qDebug() << "New user is under development.";
-    ui->statusbar->showMessage("New user is under development.");
+    kSettings = {"","","",0,0};
+    ns.accounts.clear();
+
+    loginD.ui->labelError->setText("");
+    loginD.ui->pushButtonLogin->setEnabled(true);
+    loginD.ui->lineEditEmail->setText("");
+    loginD.ui->lineEditEmail->setEnabled(true);
+    loginD.ui->lineEditPassword->setText("");
+    loginD.ui->lineEditPassword->setEnabled(true);
+
+    ui->nameInsertLabel->setText("");
+    ui->accountComboBox->blockSignals(true);
+    ui->accountComboBox->clear();
+    ui->accountComboBox->blockSignals(false);
+    ui->balanceInsertLabel->setText("");
+    ui->tableWidget->clear();
+
+    emit new_user();
 }
 
 void MainWindow::on_actionNew_transaction_triggered() {
