@@ -237,8 +237,9 @@ void MainWindow::on_actionNew_User_triggered() {
 }
 
 void MainWindow::on_actionNew_transaction_triggered() {
-    TransferDialog* transferD = new TransferDialog();
+    TransferDialog* transferD = new TransferDialog(this);
     transferD->open();
+    // ToDo: delete transferD.
     ui->statusbar->showMessage("New transaction is under development.");
 }
 
