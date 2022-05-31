@@ -4,7 +4,8 @@
 #include "mainwindow.h"
 #include "transfer.h"
 #include "./ui_mainwindow.h"
-#include "ui_logindialog.h"
+#include "./ui_logindialog.h"
+#include "transferdialog.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -236,7 +237,8 @@ void MainWindow::on_actionNew_User_triggered() {
 }
 
 void MainWindow::on_actionNew_transaction_triggered() {
-    qDebug() << "New transaction is under development.";
+    TransferDialog* transferD = new TransferDialog();
+    transferD->open();
     ui->statusbar->showMessage("New transaction is under development.");
 }
 

@@ -22,6 +22,7 @@ set(PROJECT_SOURCES
         mainwindow.h
         mainwindow.ui
         logindialog.ui
+        transferdialog.ui
         account.h
         account.cpp
         transfer.h
@@ -32,6 +33,8 @@ set(PROJECT_SOURCES
         netservices.cpp
         logindialog.h
         logindialog.cpp
+        transferdialog.h
+        transferdialog.cpp
         ${TS_FILES}
 )
 
