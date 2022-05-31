@@ -1,10 +1,28 @@
-# Komunitin Lite
+# Komunitin Lite Qt
 
 Basic C++ Qt6 client for komunitin users.
 
-### Build:
 
-- Install Qt6.2 LTS (with Network, Widgets and StateMachine modules).
+![Screenshot](docs/komunitin_lite_qt.png)
 
-- OpenSsl 1.1 is needed (If your system uses libssl version 3, it won't work)
+
+### Build notes:
+
+- Qt6.2 LTS (with Network, Widgets and StateMachine modules).
+
+- OpenSsl 1.1 is needed to run the app, Qt6 is compiled with this version.
+  (If your system uses libssl version 3, it won't run)
+  
+- Build for linux desktop is well tested.
+  You can try to build for other platform/s from QtCreator.
+  
+  
+### TODO 
+
+- Make transactions
+
+- CI to build on several platforms.
+
+- Tests, tests, tests...
+
 
