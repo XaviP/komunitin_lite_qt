@@ -17,9 +17,13 @@ Basic C++ Qt6 client for komunitin users.
   You can try to build for other platform/s from QtCreator.
   
   
-### TODO 
+### TODO (see issues)
 
-- Make transactions
+- Make transfer
+
+- Komunitin icons
+
+- Translations: es, ca, ...
 
 - CI to build on several platforms.
 
