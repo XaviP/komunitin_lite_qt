@@ -102,7 +102,7 @@ void MainWindow::show_account_balance() {
 
 void MainWindow::show_account_transfers() {
     QStringList labelHeaders;
-    labelHeaders << "created" << "about" << "from" << "to" << "amount" << "state";
+    labelHeaders << tr("created") << tr("about") << tr("from") << tr("to") << tr("amount") << tr("state");
     ui->tableWidget->setHorizontalHeaderLabels( labelHeaders );
 
     ui->statusbar->showMessage("All data is loaded.");
