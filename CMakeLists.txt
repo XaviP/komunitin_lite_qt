@@ -17,24 +17,24 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Network Widgets StateMach
 set(TS_FILES komunitin_lite_qt_ca_ES.ts)
 
 set(PROJECT_SOURCES
-        main.cpp
-        mainwindow.cpp
-        mainwindow.h
-        mainwindow.ui
-        logindialog.ui
-        transferdialog.ui
-        account.h
-        account.cpp
-        transfer.h
-        transfer.cpp
-        oauth2.h
-        oauth2.cpp
-        netservices.h
-        netservices.cpp
-        logindialog.h
-        logindialog.cpp
-        transferdialog.h
-        transferdialog.cpp
+        src/main.cpp
+        src/mainwindow.cpp
+        src/mainwindow.h
+        src/mainwindow.ui
+        src/logindialog.ui
+        src/transferdialog.ui
+        src/account.h
+        src/account.cpp
+        src/transfer.h
+        src/transfer.cpp
+        src/oauth2.h
+        src/oauth2.cpp
+        src/netservices.h
+        src/netservices.cpp
+        src/logindialog.h
+        src/logindialog.cpp
+        src/transferdialog.h
+        src/transferdialog.cpp
         ${TS_FILES}
 )
 
