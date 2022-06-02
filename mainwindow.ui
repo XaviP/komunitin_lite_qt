@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Komunitin Lite</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="svg/icons.qrc">
+    <normaloff>:/komunitin_icon.svg</normaloff>:/komunitin_icon.svg</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QTableWidget" name="tableWidget">
     <property name="geometry">
@@ -61,7 +65,7 @@
    <widget class="QLabel" name="nameLabel">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>10</x>
       <y>0</y>
       <width>61</width>
       <height>20</height>
@@ -71,13 +75,13 @@
      <string>Name:</string>
     </property>
     <property name="alignment">
-     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
     </property>
    </widget>
    <widget class="QLabel" name="nameInsertLabel">
     <property name="geometry">
      <rect>
-      <x>90</x>
+      <x>70</x>
       <y>0</y>
       <width>161</width>
       <height>21</height>
@@ -137,8 +141,18 @@
     </rect>
    </property>
    <widget class="QMenu" name="menuApp">
-    <property name="title">
+    <property name="whatsThis">
      <string>Menu</string>
+    </property>
+    <property name="accessibleName">
+     <string>Menu</string>
+    </property>
+    <property name="title">
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset resource="svg/icons.qrc">
+      <normaloff>:/menu.svg</normaloff>:/menu.svg</iconset>
     </property>
     <addaction name="actionNew_User"/>
     <addaction name="actionNew_transaction"/>
@@ -163,6 +177,8 @@
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="svg/icons.qrc"/>
+ </resources>
  <connections/>
 </ui>

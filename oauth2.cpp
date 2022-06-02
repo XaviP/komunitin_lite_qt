@@ -68,7 +68,6 @@ void Oauth2::get_access_reply(QNetworkReply* postReply) {
     else {
         QString strReply = postReply->readAll();
         postReply->deleteLater();
-        qDebug() << strReply;
         QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
         kSettingsP->access_token = jsonResponse.object()["access_token"].toString();
         kSettingsP->refresh_token = jsonResponse.object()["refresh_token"].toString();
