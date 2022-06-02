@@ -21,10 +21,6 @@ Basic C++ Qt6 client for komunitin users.
 
 - Make transfer
 
-- Komunitin icons
-
-- Translations: es, ca, ...
-
 - CI to build on several platforms.
 
 - Tests, tests, tests...

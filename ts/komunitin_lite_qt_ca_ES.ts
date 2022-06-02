@@ -19,6 +19,11 @@
         <source>Password:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../src/logindialog.cpp" line="34"/>
+        <source>Checking autorization...</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -59,6 +64,31 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mainwindow.cpp" line="67"/>
+        <source>Trying authorization...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="74"/>
+        <source>Authentication error.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="78"/>
+        <source>Enter credentials to try again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="95"/>
+        <source>Loading balance data...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="100"/>
+        <source>Loading transfers data...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../src/mainwindow.cpp" line="105"/>
         <source>created</source>
         <translation>creat</translation>
@@ -87,6 +117,11 @@
         <location filename="../src/mainwindow.cpp" line="105"/>
         <source>state</source>
         <translation>estat</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="108"/>
+        <source>All data is loaded.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

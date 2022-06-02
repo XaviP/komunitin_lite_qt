@@ -64,18 +64,18 @@ void MainWindow::ask_for_new_auth() {
 }
 
 void MainWindow::try_authorization() {
-    ui->statusbar->showMessage("Trying authorization...");
+    ui->statusbar->showMessage(tr("Trying authorization..."));
     kSettings.user_email = QString::fromStdString(loginD.get_email());
     ns.oauth2.get_access(loginD.get_email(), loginD.get_password());
 }
 
 void MainWindow::authorization_error() {
     if (loginD.isVisible()) {
-        loginD.ui->labelError->setText("Authentication error.");
+        loginD.ui->labelError->setText(tr("Authentication error."));
         loginD.ui->pushButtonLogin->setEnabled(true);
         loginD.ui->lineEditEmail->setEnabled(true);
         loginD.ui->lineEditPassword->setEnabled(true);
-        ui->statusbar->showMessage("Enter credentials to try again.");
+        ui->statusbar->showMessage(tr("Enter credentials to try again."));
     } else {
         loginD.open();
     }
@@ -92,12 +92,12 @@ void MainWindow::show_accounts_data() {
     }
     ui->accountComboBox->setCurrentIndex(ns.index_current_acc);
     ui->nameInsertLabel->setText(QString::fromStdString(ns.accounts[ns.index_current_acc].member_name));
-    ui->statusbar->showMessage("Loading balance data...");
+    ui->statusbar->showMessage(tr("Loading balance data..."));
 }
 
 void MainWindow::show_account_balance() {
     ui->balanceInsertLabel->setText(QString::fromStdString(ns.accounts[ns.index_current_acc].print_balance()));
-    ui->statusbar->showMessage("Loading transfers data...");
+    ui->statusbar->showMessage(tr("Loading transfers data..."));
 }
 
 void MainWindow::show_account_transfers() {
@@ -105,7 +105,7 @@ void MainWindow::show_account_transfers() {
     labelHeaders << tr("created") << tr("about") << tr("from") << tr("to") << tr("amount") << tr("state");
     ui->tableWidget->setHorizontalHeaderLabels( labelHeaders );
 
-    ui->statusbar->showMessage("All data is loaded.");
+    ui->statusbar->showMessage(tr("All data is loaded."));
     int rows = ns.accounts[ns.index_current_acc].transfers.size();
     ui->tableWidget->setRowCount(rows);
     for (int row = 0; row < rows; row++) {

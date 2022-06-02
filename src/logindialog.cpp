@@ -31,7 +31,7 @@ void LoginDialog::pushButtonLogin_clicked()
         ui->pushButtonLogin->setEnabled(false);
         ui->lineEditEmail->setEnabled(false);
         ui->lineEditPassword->setEnabled(false);
-        ui->labelError->setText("Checking autorization...");
+        ui->labelError->setText(tr("Checking autorization..."));
         emit send_authorization();
     }
 }
