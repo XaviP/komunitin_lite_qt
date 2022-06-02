@@ -14,7 +14,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Network Widgets StateMachine LinguistTools)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Network Widgets StateMachine LinguistTools)
 
-set(TS_FILES komunitin_lite_qt_ca_ES.ts)
+set(TS_FILES ts/komunitin_lite_qt_ca_ES.ts)
 
 set(PROJECT_SOURCES
         src/main.cpp
