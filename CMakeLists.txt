@@ -21,6 +21,8 @@ set(PROJECT_SOURCES
         src/mainwindow.cpp
         src/mainwindow.h
         src/mainwindow.ui
+        src/kstatemachine.h
+        src/kstatemachine.cpp
         src/logindialog.ui
         src/transferdialog.ui
         src/account.h

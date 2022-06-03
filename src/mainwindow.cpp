@@ -13,12 +13,10 @@ MainWindow::MainWindow(QWidget *parent)
       ns(),
       kSettings(),
       loginD(this),
-      machine(),
       firstTimeShown(true)
 {
     loadSettings();
     ns.oauth2.kSettingsP = &kSettings;
-    create_state_machine();
 
     ui->setupUi(this);
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
@@ -29,34 +27,21 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
-    delete s1;
-    delete s1H;
-    delete s10NoAccess;
-    delete s11CheckTokens;
-    delete s12HasAccess;
-    delete s13HasAccounts;
-    delete s14HasBalance;
-    delete s15HasTransfers;
-    delete s16HasAllData;
-    delete s2;
-    delete s20ShowDialog;
-    delete s21TryAuth;
-    delete s22HasAccess;
 }
 
 void MainWindow::showEvent(QShowEvent *e) {
-   QMainWindow::showEvent(e);
-   if (firstTimeShown == true) {
-      firstTimeShown = false;
+    QMainWindow::showEvent(e);
+    if (firstTimeShown == true) {
+        firstTimeShown = false;
 
-      // wait 100ms (non-blocking) for QApplication::exec()
-      // to get the state machine really started.
-      QEventLoop loop;
-      QTimer::singleShot(100, &loop, SLOT(quit()));
-      loop.exec();
+        // wait 100ms (non-blocking) for QApplication::exec()
+        // to get the state machine really started.
+        QEventLoop loop;
+        QTimer::singleShot(100, &loop, SLOT(quit()));
+        loop.exec();
 
-      emit window_shown();
-   }
+        emit window_shown();
+    }
 }
 
 void MainWindow::ask_for_new_auth() {
@@ -133,88 +118,6 @@ void MainWindow::changeAccount(int index) {
     }
 }
 
-void MainWindow::create_state_machine() {
-    // group s1: flow with valid tokens
-    QState *s1 = new QState();
-    QState *s10NoAccess = new QState(s1);
-    QState *s11CheckTokens = new QState(s1);
-    QState *s12HasAccess = new QState(s1);
-    QState *s13HasAccounts = new QState(s1);
-    QState *s14HasBalance = new QState(s1);
-    QState *s15HasTransfers = new QState(s1);
-    QState *s16HasAllData = new QState(s1);
-
-    s1->setInitialState(s10NoAccess);
-    QHistoryState *s1H = new QHistoryState(s1);
-
-    // group s2: email/passwd authentication
-    QState *s2 = new QState();
-    QState *s20ShowDialog = new QState(s2);
-    QState *s21TryAuth = new QState(s2);
-    s2->setInitialState(s20ShowDialog);
-
-    s10NoAccess->addTransition(this, SIGNAL(window_shown()), s11CheckTokens);
-    s11CheckTokens->addTransition(&ns.oauth2, SIGNAL(has_access()), s12HasAccess);
-    s12HasAccess->addTransition(&ns, SIGNAL(has_accounts()), s13HasAccounts);
-    s13HasAccounts->addTransition(&ns, SIGNAL(has_balance()), s14HasBalance);
-    s14HasBalance->addTransition(&ns, SIGNAL(has_transfers()), s15HasTransfers);
-    s15HasTransfers->addTransition(&ns, SIGNAL(has_all_data()), s16HasAllData);
-    s16HasAllData->addTransition(this, SIGNAL(change_account()), s13HasAccounts);
-    s16HasAllData->addTransition(this, SIGNAL(new_user()), s11CheckTokens);
-
-    s20ShowDialog->addTransition(&loginD, SIGNAL(send_authorization()), s21TryAuth);
-    s21TryAuth->addTransition(&ns.oauth2, SIGNAL(error_auth()), s20ShowDialog);
-
-    s1->addTransition(&ns.oauth2, SIGNAL(new_auth()), s2);
-    s2->addTransition(&ns.oauth2, SIGNAL(has_access()), s1H);
-
-    machine.addState(s1);
-    machine.addState(s2);
-    machine.setInitialState(s1);
-    machine.start();
-
-    QObject::connect(s11CheckTokens, &QState::entered, &ns.oauth2, &Oauth2::check_tokens);
-    QObject::connect(s12HasAccess, &QState::entered, &ns, &netServices::get_accounts);
-    QObject::connect(s13HasAccounts, &QState::entered, this, &MainWindow::show_accounts_data);
-    QObject::connect(s13HasAccounts, &QState::entered, &ns, &netServices::get_account_balance);
-    QObject::connect(s14HasBalance, &QState::entered, this, &MainWindow::show_account_balance);
-    QObject::connect(s14HasBalance, &QState::entered, &ns, &netServices::get_account_transfers);
-    QObject::connect(s15HasTransfers, &QState::entered, &ns, &netServices::get_unknown_accounts);
-    QObject::connect(s16HasAllData, &QState::entered, this, &MainWindow::show_account_transfers);
-
-
-    QObject::connect(s20ShowDialog, &QState::entered, this, &MainWindow::ask_for_new_auth);
-    QObject::connect(&loginD, &LoginDialog::send_authorization, this, &MainWindow::try_authorization);
-    QObject::connect(&ns.oauth2, &Oauth2::error_auth, this, &MainWindow::authorization_error);
-
-}
-
-void MainWindow::loadSettings()
-{
-  QSettings settings;
-  kSettings.user_email = settings.value("user_email", "").toString();
-  kSettings.access_token = settings.value("access_token", "").toString();
-  kSettings.refresh_token = settings.value("refresh_token", "").toString();
-  kSettings.created = settings.value("created", 0).toInt();
-  kSettings.expires_in = settings.value("expires_in", 3600).toInt();
-}
-
-void MainWindow::saveSettings()
-{
-    QSettings settings;
-    settings.setValue("user_email", kSettings.user_email);
-    settings.setValue("access_token", kSettings.access_token);
-    settings.setValue("refresh_token", kSettings.refresh_token);
-    settings.setValue("created", kSettings.created);
-    settings.setValue("expires_in", kSettings.expires_in);
-}
-
-void MainWindow::closeEvent(QCloseEvent *event)
-{
-    saveSettings();
-    event->accept();
-}
-
 void MainWindow::on_actionNew_User_triggered() {
     kSettings = {"","","",0,0};
     ns.accounts.clear();
@@ -245,4 +148,30 @@ void MainWindow::on_actionNew_transaction_triggered() {
 
 void MainWindow::on_actionQuit_triggered() {
     QApplication::quit();
+}
+
+void MainWindow::loadSettings()
+{
+  QSettings settings;
+  kSettings.user_email = settings.value("user_email", "").toString();
+  kSettings.access_token = settings.value("access_token", "").toString();
+  kSettings.refresh_token = settings.value("refresh_token", "").toString();
+  kSettings.created = settings.value("created", 0).toInt();
+  kSettings.expires_in = settings.value("expires_in", 3600).toInt();
+}
+
+void MainWindow::saveSettings()
+{
+    QSettings settings;
+    settings.setValue("user_email", kSettings.user_email);
+    settings.setValue("access_token", kSettings.access_token);
+    settings.setValue("refresh_token", kSettings.refresh_token);
+    settings.setValue("created", kSettings.created);
+    settings.setValue("expires_in", kSettings.expires_in);
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    saveSettings();
+    event->accept();
 }

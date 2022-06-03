@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "kstatemachine.h"
 
 #include <QApplication>
 #include <QLocale>
@@ -20,7 +21,12 @@ int main(int argc, char *argv[])
             break;
         }
     }
+
     MainWindow w;
+    KStateMachine machine(w);
+
+    machine.prepare_machine();
     w.show();
+
     return a.exec();
 }
