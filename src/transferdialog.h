@@ -18,13 +18,16 @@ public:
 
 public slots:
     void confirm_transfer(transfer*);
+    void on_cancelButton_clicked();
 
 private slots:
     void on_continueButton_clicked();
 
+
 signals:
     void check_account();
     void send_transfer();
+    void exit_s3();
 
 };
 

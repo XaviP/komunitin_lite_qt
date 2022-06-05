@@ -95,7 +95,7 @@
     <rect>
      <x>190</x>
      <y>90</y>
-     <width>113</width>
+     <width>81</width>
      <height>25</height>
     </rect>
    </property>
@@ -147,6 +147,19 @@
      <width>191</width>
      <height>71</height>
     </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="currencyLabel">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>94</y>
+     <width>67</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
    </property>
   </widget>
  </widget>

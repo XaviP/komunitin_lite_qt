@@ -50,6 +50,7 @@ signals:
     void has_all_data();
     void network_error();
     void confirm_transfer();
+    void transfer_done();
 };
 
 #endif // NETSERVICES_H

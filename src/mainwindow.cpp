@@ -143,6 +143,7 @@ void MainWindow::on_actionNew_User_triggered() {
 
 void MainWindow::on_actionNew_transaction_triggered() {
     transD.ui->toAccountLabel->setText(QString::fromStdString(ns.accounts[ns.index_current_acc].account_code));
+    transD.ui->currencyLabel->setText(QString::fromStdString(ns.accounts[ns.index_current_acc].currency.plural));
     transD.open();
     ui->statusbar->showMessage("New transfer");
     emit new_transfer();

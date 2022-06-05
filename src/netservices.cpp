@@ -273,7 +273,7 @@ void netServices::get_check_account_reply(QNetworkReply* getReply) {
 
         QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
 
-        newTrans = new transfer(QUuid::createUuid().toString().toStdString());
+        newTrans = new transfer(QUuid::createUuid().toString(QUuid::WithoutBraces).toStdString());
         newTrans->amount = 0;
         newTrans->meta = "";
         newTrans->state = "committed";
@@ -283,6 +283,7 @@ void netServices::get_check_account_reply(QNetworkReply* getReply) {
         newTrans->payer_account_code = jsonResponse.object()["data"].toObject()["attributes"].toObject()["code"].toString().toStdString();;
         newTrans->payee_account_id = accounts[index_current_acc].account_id;
         newTrans->payee_account_code = accounts[index_current_acc].account_code;
+        newTrans->currency = accounts[index_current_acc].currency;
 
         emit confirm_transfer();
 
@@ -291,54 +292,52 @@ void netServices::get_check_account_reply(QNetworkReply* getReply) {
 
 void netServices::post_new_transfer() {
 
-// data to post
-//payload = {
-//    "data": {
-//        "id": data["transaction_id"],
-//        "type": "transfers",
-//        "attributes": {
-//            "amount": data["amount"],
-//            "meta": data["meta"],
-//            "state": "committed"
-//        },
-//        "relationships": {
-//            "payer": {
-//                "data": {
-//                    "type": "accounts",
-//                    "id": data["from_account_id"]
-//                }
-//            },
-//            "payee": {
-//                "data": {
-//                    "type": "accounts",
-//                    "id": data["to_account_id"]
-//                }
-//            }
-//        }
-//    }
-//}
+    // data to post
+    QString payload = QString("{"
+        "\"data\": {"
+            "\"id\": \"%1\","
+            "\"type\": \"transfers\","
+            "\"attributes\": {"
+                "\"amount\": %2,"
+                "\"meta\": \"%3\","
+                "\"state\": \"committed\""
+            "},"
+            "\"relationships\": {"
+                "\"payer\": {"
+                    "\"data\": {"
+                        "\"type\": \"accounts\","
+                        "\"id\": \"%4\""
+                    "}"
+                "},"
+                "\"payee\": {"
+                    "\"data\": {"
+                        "\"type\": \"accounts\","
+                        "\"id\": \"%5\""
+                    "}"
+                "}"
+            "}"
+        "}"
+    "}").arg(
+        QString::fromStdString(newTrans->id),
+        QString::number(newTrans->amount),
+        QString::fromStdString(newTrans->meta),
+        QString::fromStdString(newTrans->payer_account_id),
+        QString::fromStdString(newTrans->payee_account_id)
+    );
+    QJsonDocument json_to_post = QJsonDocument::fromJson(payload.toUtf8());
+    QByteArray postData = json_to_post.toJson();
 
-
-    QUrlQuery query;
-    query.addQueryItem("grant_type","password");
-//    query.addQueryItem("username", QString::fromStdString(email));
-//    query.addQueryItem("password", QString::fromStdString(password));
-//    query.addQueryItem("client_id", oauth2ClientId);
-//    query.addQueryItem("scope", oauth2Scope);
-
-    QByteArray postData;
-    postData = query.toString(QUrl::FullyEncoded).toUtf8();
-
-    QUrl url = QUrl(baseApiUrl + "/accounting/{group_code}/transfers");
+    QUrl url = QUrl(baseApiUrl + "/accounting/" + QString::fromStdString(accounts[index_current_acc].group_code) + "/transfers");
     QNetworkRequest networkRequest(url);
+
     networkRequest.setHeader(QNetworkRequest::ContentTypeHeader,
-                             "application/x-www-form-urlencoded");
+                             "application/json");
     networkRequest.setRawHeader("Authorization",
                                 QString("Bearer " + oauth2.kSettingsP->access_token).toUtf8());
 
     netManager->post(networkRequest, postData);
     connect(netManager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(post_transfer_reply(QNetworkReply*)), Qt::SingleShotConnection);
+            this, SLOT(post_new_transfer_reply(QNetworkReply*)), Qt::SingleShotConnection);
 }
 
 void netServices::post_new_transfer_reply(QNetworkReply* postReply) {
@@ -350,6 +349,6 @@ void netServices::post_new_transfer_reply(QNetworkReply* postReply) {
     else {
         QString strReply = postReply->readAll();
         postReply->deleteLater();
-        qDebug() << strReply;
+        emit transfer_done();
     }
 }

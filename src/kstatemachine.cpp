@@ -81,7 +81,8 @@ void KStateMachine::prepare_machine() {
     s1->addTransition(&mw.ns.oauth2, SIGNAL(new_auth()), s2);
     s1->addTransition(&mw, SIGNAL(new_transfer()), s3);
     s2->addTransition(&mw.ns.oauth2, SIGNAL(has_access()), s1H);
-    //s3->addTransition(&mw.ns.oauth2, SIGNAL(close_transD()), s1H);
+    s3->addTransition(&mw.transD, SIGNAL(exit_s3()), s1H);
+    s3->addTransition(&mw.ns, SIGNAL(transfer_done()), s1H);
 
     addState(s1);
     addState(s2);
@@ -108,4 +109,6 @@ void KStateMachine::prepare_machine() {
     // s3
     QObject::connect(s31CheckAccount, &QState::entered, &mw, &MainWindow::check_account);
     QObject::connect(s32ShowConfirm, &QState::entered, &mw, &MainWindow::confirm_transfer);
+    QObject::connect(s33SendTransfer, &QState::entered, &mw.ns, &netServices::post_new_transfer);
+    QObject::connect(&mw.ns, &netServices::transfer_done, &mw.transD, &TransferDialog::on_cancelButton_clicked);
 }

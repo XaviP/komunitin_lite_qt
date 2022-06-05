@@ -183,7 +183,7 @@
   </action>
   <action name="actionNew_transaction">
    <property name="text">
-    <string>New transaction</string>
+    <string>New transfer</string>
    </property>
   </action>
   <action name="actionQuit">
