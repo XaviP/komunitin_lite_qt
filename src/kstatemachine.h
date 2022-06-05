@@ -27,6 +27,11 @@ public:
     QState *s20ShowDialog;
     QState *s21TryAuth;
     QState *s22HasAccess;
+    QState *s3;
+    QState *s30ShowDialog;
+    QState *s31CheckAccount;
+    QState *s32ShowConfirm;
+    QState *s33SendTransfer;
     void prepare_machine();
 };
 

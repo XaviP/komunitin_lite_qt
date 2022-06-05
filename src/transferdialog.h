@@ -1,6 +1,7 @@
 #ifndef TRANSFERDIALOG_H
 #define TRANSFERDIALOG_H
 
+#include "transfer.h"
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
@@ -14,7 +15,16 @@ public:
     explicit TransferDialog(QWidget *parent = nullptr);
     ~TransferDialog();
     Ui::TransferDialog *ui;
+
+public slots:
+    void confirm_transfer(transfer*);
+
+private slots:
+    void on_continueButton_clicked();
+
 signals:
+    void check_account();
+    void send_transfer();
 
 };
 

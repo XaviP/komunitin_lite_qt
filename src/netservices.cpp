@@ -9,6 +9,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QEventLoop>
+#include <QUuid>
 
 #include "netservices.h"
 #include "account.h"
@@ -222,5 +223,133 @@ void netServices::get_unknown_accounts_reply(QNetworkReply* getReply) {
             }
         }
         emit has_all_data();
+    }
+}
+
+void netServices::get_check_account(const QString& group_code, const QString& account_code) {
+    QString url = baseApiUrl + "/accounting/" + group_code + "/accounts/" + account_code;
+    QNetworkRequest networkRequest(url);
+    oauth2.prepare_request(networkRequest);
+
+    netManager->get(networkRequest);
+    connect(netManager, SIGNAL(finished(QNetworkReply*)),
+            this, SLOT(get_check_account_reply(QNetworkReply*)), Qt::SingleShotConnection);
+}
+
+void netServices::get_check_account_reply(QNetworkReply* getReply) {
+    if(getReply->error()) {
+        qDebug() << "Error: " << getReply->errorString();
+        getReply->deleteLater();
+        emit network_error();
+    }
+    else {
+        QString strReply = getReply->readAll();
+        getReply->deleteLater();
+
+// reply sample:
+//{
+//    "data": {
+//        "type": "accounts",
+//        "id": "94a0533e-97d6-4eef-bbbd-2a3e4dac02a9",
+//        "attributes": {
+//            "code": "NET10002",
+//            "balance": 240,
+//            "creditLimit": -1,
+//            "debitLimit": -1
+//        },
+//        "relationships": {
+//            "currency": {
+//                "data": {
+//                    "type": "currencies",
+//                    "id": "8caff01c-4efa-41ef-bc55-c7c2c057be16"
+//                }
+//            }
+//        },
+//        "links": {
+//            "self": "https://demo.integralces.net/ces/api/accounting/NET1/accounts/NET10002"
+//        }
+//    }
+//}
+
+        QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
+
+        newTrans = new transfer(QUuid::createUuid().toString().toStdString());
+        newTrans->amount = 0;
+        newTrans->meta = "";
+        newTrans->state = "committed";
+        newTrans->created = "";
+        newTrans->updated = "";
+        newTrans->payer_account_id = jsonResponse.object()["data"].toObject()["id"].toString().toStdString();
+        newTrans->payer_account_code = jsonResponse.object()["data"].toObject()["attributes"].toObject()["code"].toString().toStdString();;
+        newTrans->payee_account_id = accounts[index_current_acc].account_id;
+        newTrans->payee_account_code = accounts[index_current_acc].account_code;
+
+        emit confirm_transfer();
+
+    }
+}
+
+void netServices::post_new_transfer() {
+
+// data to post
+//payload = {
+//    "data": {
+//        "id": data["transaction_id"],
+//        "type": "transfers",
+//        "attributes": {
+//            "amount": data["amount"],
+//            "meta": data["meta"],
+//            "state": "committed"
+//        },
+//        "relationships": {
+//            "payer": {
+//                "data": {
+//                    "type": "accounts",
+//                    "id": data["from_account_id"]
+//                }
+//            },
+//            "payee": {
+//                "data": {
+//                    "type": "accounts",
+//                    "id": data["to_account_id"]
+//                }
+//            }
+//        }
+//    }
+//}
+
+
+    QUrlQuery query;
+    query.addQueryItem("grant_type","password");
+//    query.addQueryItem("username", QString::fromStdString(email));
+//    query.addQueryItem("password", QString::fromStdString(password));
+//    query.addQueryItem("client_id", oauth2ClientId);
+//    query.addQueryItem("scope", oauth2Scope);
+
+    QByteArray postData;
+    postData = query.toString(QUrl::FullyEncoded).toUtf8();
+
+    QUrl url = QUrl(baseApiUrl + "/accounting/{group_code}/transfers");
+    QNetworkRequest networkRequest(url);
+    networkRequest.setHeader(QNetworkRequest::ContentTypeHeader,
+                             "application/x-www-form-urlencoded");
+    networkRequest.setRawHeader("Authorization",
+                                QString("Bearer " + oauth2.kSettingsP->access_token).toUtf8());
+
+    netManager->post(networkRequest, postData);
+    connect(netManager, SIGNAL(finished(QNetworkReply*)),
+            this, SLOT(post_transfer_reply(QNetworkReply*)), Qt::SingleShotConnection);
+}
+
+void netServices::post_new_transfer_reply(QNetworkReply* postReply) {
+    if(postReply->error()) {
+        qDebug() << "Error: " << postReply->errorString();
+        postReply->deleteLater();
+        emit network_error();
+    }
+    else {
+        QString strReply = postReply->readAll();
+        postReply->deleteLater();
+        qDebug() << strReply;
     }
 }

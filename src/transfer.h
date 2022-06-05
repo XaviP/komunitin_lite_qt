@@ -29,6 +29,7 @@ public:
     string payee_account_code;
     Currency currency;
 
+    int get_factor();
     string print_amount();
     string print_transfer();
 };

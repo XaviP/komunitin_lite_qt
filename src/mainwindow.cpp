@@ -6,6 +6,7 @@
 #include "./ui_mainwindow.h"
 #include "./ui_logindialog.h"
 #include "transferdialog.h"
+#include "ui_transferdialog.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -13,6 +14,7 @@ MainWindow::MainWindow(QWidget *parent)
       ns(),
       kSettings(),
       loginD(this),
+      transD(this),
       firstTimeShown(true)
 {
     loadSettings();
@@ -140,10 +142,22 @@ void MainWindow::on_actionNew_User_triggered() {
 }
 
 void MainWindow::on_actionNew_transaction_triggered() {
-    TransferDialog* transferD = new TransferDialog(this);
-    transferD->open();
-    // ToDo: delete transferD.
-    ui->statusbar->showMessage("New transaction is under development.");
+    transD.ui->toAccountLabel->setText(QString::fromStdString(ns.accounts[ns.index_current_acc].account_code));
+    transD.open();
+    ui->statusbar->showMessage("New transfer");
+    emit new_transfer();
+}
+
+void MainWindow::check_account() {
+    QString fromAccount = transD.ui->fromAccountLineEdit->text();
+    QString groupCode = QString::fromStdString(ns.accounts[ns.index_current_acc].group_code);
+    ns.get_check_account(groupCode, fromAccount);
+}
+
+void MainWindow::confirm_transfer() {
+    ns.newTrans->amount =  int(transD.ui->amountLineEdit->text().toFloat() * ns.newTrans->get_factor());
+    ns.newTrans->meta = transD.ui->conceptPlainTextEdit->toPlainText().toStdString();
+    transD.confirm_transfer(ns.newTrans);
 }
 
 void MainWindow::on_actionQuit_triggered() {

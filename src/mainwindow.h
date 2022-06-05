@@ -2,8 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "logindialog.h"
 #include "netservices.h"
+#include "logindialog.h"
+#include "transferdialog.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -19,6 +20,7 @@ public:
     ~MainWindow();
     netServices ns;
     LoginDialog loginD;
+    TransferDialog transD;
     komunitin_settings kSettings;
 
 private:
@@ -37,6 +39,8 @@ public slots:
     void ask_for_new_auth();
     void try_authorization();
     void authorization_error();
+    void check_account();
+    void confirm_transfer();
 
 private slots:
     void changeAccount(int);
@@ -48,6 +52,7 @@ signals:
     void window_shown();
     void change_account();
     void new_user();
+    void new_transfer();
 
 };
 #endif // MAINWINDOW_H

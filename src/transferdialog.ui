@@ -19,69 +19,137 @@
   <property name="modal">
    <bool>true</bool>
   </property>
-  <widget class="QDialogButtonBox" name="buttonBox">
+  <widget class="QLabel" name="fromLabel">
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>244</y>
-     <width>341</width>
-     <height>32</height>
+     <y>29</y>
+     <width>141</width>
+     <height>20</height>
     </rect>
    </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
+   <property name="text">
+    <string>From account:</string>
    </property>
-   <property name="standardButtons">
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
    </property>
   </widget>
-  <widget class="QLabel" name="label">
+  <widget class="QLabel" name="toAccountLabel">
    <property name="geometry">
     <rect>
-     <x>90</x>
-     <y>80</y>
-     <width>251</width>
+     <x>192</x>
+     <y>59</y>
+     <width>111</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QLabel" name="toLabel">
+   <property name="geometry">
+    <rect>
+     <x>29</x>
+     <y>61</y>
+     <width>141</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>To account:</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="fromAccountLineEdit">
+   <property name="geometry">
+    <rect>
+     <x>190</x>
+     <y>24</y>
+     <width>113</width>
+     <height>25</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="AmountLabel">
+   <property name="geometry">
+    <rect>
+     <x>103</x>
+     <y>93</y>
+     <width>67</width>
      <height>17</height>
     </rect>
    </property>
    <property name="text">
-    <string>New transfer is under development.</string>
+    <string>Amount:</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="amountLineEdit">
+   <property name="geometry">
+    <rect>
+     <x>190</x>
+     <y>90</y>
+     <width>113</width>
+     <height>25</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="continueButton">
+   <property name="geometry">
+    <rect>
+     <x>279</x>
+     <y>260</y>
+     <width>89</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Continue</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="cancelButton">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>260</y>
+     <width>89</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Cancel</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="conceptLabel">
+   <property name="geometry">
+    <rect>
+     <x>110</x>
+     <y>124</y>
+     <width>67</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Concept:</string>
+   </property>
+  </widget>
+  <widget class="QPlainTextEdit" name="conceptPlainTextEdit">
+   <property name="geometry">
+    <rect>
+     <x>113</x>
+     <y>149</y>
+     <width>191</width>
+     <height>71</height>
+    </rect>
    </property>
   </widget>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>TransferDialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>TransferDialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

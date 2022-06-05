@@ -18,7 +18,14 @@ KStateMachine::KStateMachine (MainWindow& mainwindow, QObject *parent) :
     // group s2: email/passwd authentication
     s2(new QState()),
     s20ShowDialog(new QState(s2)),
-    s21TryAuth(new QState(s2))
+    s21TryAuth(new QState(s2)),
+
+    // group s3: send transaction
+    s3(new QState()),
+    s30ShowDialog(new QState(s3)),
+    s31CheckAccount(new QState(s3)),
+    s32ShowConfirm(new QState(s3)),
+    s33SendTransfer(new QState(s3))
 
 {}
 
@@ -36,41 +43,54 @@ KStateMachine::~KStateMachine() {
     delete s20ShowDialog;
     delete s21TryAuth;
     delete s22HasAccess;
+    delete s3;
+    delete s30ShowDialog;
+    delete s31CheckAccount;
+    delete s32ShowConfirm;
+    delete s33SendTransfer;
 }
 
 void KStateMachine::prepare_machine() {
 
     s1->setInitialState(s10NoAccess);
     s2->setInitialState(s20ShowDialog);
+    s3->setInitialState(s30ShowDialog);
 
-    // transitions with valid tokens (group s1)
+    // group s1
     s10NoAccess->addTransition(&mw, SIGNAL(window_shown()), s11CheckTokens);
     s11CheckTokens->addTransition(&mw.ns.oauth2, SIGNAL(has_access()), s12HasAccess);
     s12HasAccess->addTransition(&mw.ns, SIGNAL(has_accounts()), s13HasAccounts);
     s13HasAccounts->addTransition(&mw.ns, SIGNAL(has_balance()), s14HasBalance);
     s14HasBalance->addTransition(&mw.ns, SIGNAL(has_transfers()), s15HasTransfers);
     s15HasTransfers->addTransition(&mw.ns, SIGNAL(has_all_data()), s16HasAllData);
-
     // transition when change accounts in accountComboBox
     s16HasAllData->addTransition(&mw, SIGNAL(change_account()), s13HasAccounts);
-
     // transition when new user is triggered
     s16HasAllData->addTransition(&mw, SIGNAL(new_user()), s11CheckTokens);
 
-    // transitions when no valid tokens found (group s2)
+    // group s2
     s20ShowDialog->addTransition(&mw.loginD, SIGNAL(send_authorization()), s21TryAuth);
     s21TryAuth->addTransition(&mw.ns.oauth2, SIGNAL(error_auth()), s20ShowDialog);
 
-    // transitions from group s1 to s2, and from group s2 to s1
+    // group s3
+    s30ShowDialog->addTransition(&mw.transD, SIGNAL(check_account()), s31CheckAccount);
+    s31CheckAccount->addTransition(&mw.ns, SIGNAL(confirm_transfer()), s32ShowConfirm);
+    s32ShowConfirm->addTransition(&mw.transD, SIGNAL(send_transfer()), s33SendTransfer);
+
+    // transitions between groups s1, s2, and s3
     s1->addTransition(&mw.ns.oauth2, SIGNAL(new_auth()), s2);
+    s1->addTransition(&mw, SIGNAL(new_transfer()), s3);
     s2->addTransition(&mw.ns.oauth2, SIGNAL(has_access()), s1H);
+    //s3->addTransition(&mw.ns.oauth2, SIGNAL(close_transD()), s1H);
 
     addState(s1);
     addState(s2);
+    addState(s3);
     setInitialState(s1);
 
     start(); // start machine
 
+    // s1
     QObject::connect(s11CheckTokens, &QState::entered, &mw.ns.oauth2, &Oauth2::check_tokens);
     QObject::connect(s12HasAccess, &QState::entered, &mw.ns, &netServices::get_accounts);
     QObject::connect(s13HasAccounts, &QState::entered, &mw, &MainWindow::show_accounts_data);
@@ -80,8 +100,12 @@ void KStateMachine::prepare_machine() {
     QObject::connect(s15HasTransfers, &QState::entered, &mw.ns, &netServices::get_unknown_accounts);
     QObject::connect(s16HasAllData, &QState::entered, &mw, &MainWindow::show_account_transfers);
 
-
+    // s2
     QObject::connect(s20ShowDialog, &QState::entered, &mw, &MainWindow::ask_for_new_auth);
     QObject::connect(&mw.loginD, &LoginDialog::send_authorization, &mw, &MainWindow::try_authorization);
     QObject::connect(&mw.ns.oauth2, &Oauth2::error_auth, &mw, &MainWindow::authorization_error);
+
+    // s3
+    QObject::connect(s31CheckAccount, &QState::entered, &mw, &MainWindow::check_account);
+    QObject::connect(s32ShowConfirm, &QState::entered, &mw, &MainWindow::confirm_transfer);
 }
