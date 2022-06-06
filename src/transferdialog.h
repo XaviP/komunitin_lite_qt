@@ -15,6 +15,7 @@ public:
     explicit TransferDialog(QWidget *parent = nullptr);
     ~TransferDialog();
     Ui::TransferDialog *ui;
+    QString current_group;
 
 public slots:
     void confirm_transfer(transfer*);
@@ -22,7 +23,6 @@ public slots:
 
 private slots:
     void on_continueButton_clicked();
-
 
 signals:
     void check_account();

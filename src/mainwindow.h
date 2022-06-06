@@ -48,6 +48,7 @@ private slots:
     void on_actionQuit_triggered();
     void on_actionNew_transaction_triggered();
     void on_actionNew_User_triggered();
+    void on_actionReload_transfer_triggered();
 
 signals:
     void window_shown();

@@ -116,8 +116,17 @@ void MainWindow::show_account_transfers() {
 void MainWindow::changeAccount(int index) {
     if (index != ns.index_current_acc) {
         ns.index_current_acc = index;
+        ui->tableWidget->clearContents();
+        ui->tableWidget->setRowCount(1);
         emit change_account();
     }
+}
+
+void MainWindow::on_actionReload_transfer_triggered() {
+    ui->tableWidget->clearContents();
+    ui->tableWidget->setRowCount(1);
+    ui->statusbar->showMessage("Reloading transfers...");
+    emit change_account();
 }
 
 void MainWindow::on_actionNew_User_triggered() {
@@ -142,6 +151,8 @@ void MainWindow::on_actionNew_User_triggered() {
 }
 
 void MainWindow::on_actionNew_transaction_triggered() {
+    transD.current_group = QString::fromStdString(ns.accounts[ns.index_current_acc].group_code);
+    transD.setWindowTitle(tr("New transfer in group") + " " + transD.current_group);
     transD.ui->toAccountLabel->setText(QString::fromStdString(ns.accounts[ns.index_current_acc].account_code));
     transD.ui->currencyLabel->setText(QString::fromStdString(ns.accounts[ns.index_current_acc].currency.plural));
     transD.open();
@@ -162,6 +173,7 @@ void MainWindow::confirm_transfer() {
 }
 
 void MainWindow::transfer_done() {
+    ui->statusbar->showMessage("New transfer done");
     transD.ui->fromAccountLineEdit->setText("");
     transD.ui->amountLineEdit->setText("");
     transD.ui->conceptPlainTextEdit->setPlainText("");
@@ -201,3 +213,5 @@ void MainWindow::closeEvent(QCloseEvent *event)
     saveSettings();
     event->accept();
 }
+
+

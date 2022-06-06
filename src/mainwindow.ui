@@ -169,8 +169,10 @@
      <iconset resource="../svg/icons.qrc">
       <normaloff>:/menu.svg</normaloff>:/menu.svg</iconset>
     </property>
-    <addaction name="actionNew_User"/>
+    <addaction name="actionReload_transfer"/>
     <addaction name="actionNew_transaction"/>
+    <addaction name="actionNew_User"/>
+    <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
    <addaction name="menuApp"/>
@@ -189,6 +191,11 @@
   <action name="actionQuit">
    <property name="text">
     <string>Quit</string>
+   </property>
+  </action>
+  <action name="actionReload_transfer">
+   <property name="text">
+    <string>Reload transfers</string>
    </property>
   </action>
  </widget>

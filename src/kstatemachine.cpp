@@ -63,7 +63,7 @@ void KStateMachine::prepare_machine() {
     s13HasAccounts->addTransition(&mw.ns, SIGNAL(has_balance()), s14HasBalance);
     s14HasBalance->addTransition(&mw.ns, SIGNAL(has_transfers()), s15HasTransfers);
     s15HasTransfers->addTransition(&mw.ns, SIGNAL(has_all_data()), s16HasAllData);
-    // transition when change accounts in accountComboBox
+    // transition when reload transfer is triggered or when change accounts in accountComboBox
     s16HasAllData->addTransition(&mw, SIGNAL(change_account()), s13HasAccounts);
     // transition when new user is triggered
     s16HasAllData->addTransition(&mw, SIGNAL(new_user()), s11CheckTokens);

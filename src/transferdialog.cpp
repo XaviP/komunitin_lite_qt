@@ -7,7 +7,8 @@
 
 TransferDialog::TransferDialog(QWidget *parent)
     : QDialog(parent),
-      ui(new Ui::TransferDialog)
+      ui(new Ui::TransferDialog),
+      current_group("")
 {
     ui->setupUi(this);
 }
@@ -35,7 +36,8 @@ void TransferDialog::on_continueButton_clicked() {
     static const QRegularExpression re1("^[A-Za-z0-9]{4}[0-9]{4}$");
     static const QRegularExpression re2("^[0-9]+([.][0-9]+)?$");
 
-    if (!re1.match(ui->fromAccountLineEdit->text()).hasMatch()) {
+    if (!re1.match(ui->fromAccountLineEdit->text()).hasMatch() ||
+                ui->fromAccountLineEdit->text().left(4) != current_group) {
         ui->errorLabel->setText(tr("Invalid account code."));
         return;
     } else if (!re2.match(ui->amountLineEdit->text()).hasMatch() || ui->amountLineEdit->text().toFloat() == 0 ) {
