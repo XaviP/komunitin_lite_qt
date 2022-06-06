@@ -6,6 +6,7 @@ LoginDialog::LoginDialog(QWidget *parent)
       ui(new Ui::LoginDialog)
 {
     ui->setupUi(this);
+    ui->lineEditPassword->setEchoMode(QLineEdit::Password);
     connect(ui->pushButtonLogin, SIGNAL(clicked()),
             this, SLOT(pushButtonLogin_clicked()), Qt::UniqueConnection);
 }
