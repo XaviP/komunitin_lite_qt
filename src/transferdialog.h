@@ -27,6 +27,7 @@ private slots:
 signals:
     void check_account();
     void send_transfer();
+    void edit_transfer();
     void exit_s3();
 
 };

@@ -38,7 +38,7 @@ void TransferDialog::on_continueButton_clicked() {
     if (!re1.match(ui->fromAccountLineEdit->text()).hasMatch()) {
         ui->errorLabel->setText(tr("Invalid account code."));
         return;
-    } else if (!re2.match(ui->amountLineEdit->text()).hasMatch() || ui->amountLineEdit->text().toInt() == 0 ) {
+    } else if (!re2.match(ui->amountLineEdit->text()).hasMatch() || ui->amountLineEdit->text().toFloat() == 0 ) {
         ui->errorLabel->setText(tr("Invalid amount."));
         return;
     } else if (ui->conceptPlainTextEdit->toPlainText().isEmpty()) {
@@ -74,7 +74,11 @@ void TransferDialog::confirm_transfer(transfer* newTrans) {
         emit send_transfer();
     } else if (msgBox->clickedButton() == cancelButton) {
         delete msgBox;
-        on_cancelButton_clicked();
+        ui->fromAccountLineEdit->setEnabled(true);
+        ui->amountLineEdit->setEnabled(true);
+        ui->conceptPlainTextEdit->setEnabled(true);
+        ui->continueButton->setEnabled(true);
+        emit edit_transfer();
     }
 }
 

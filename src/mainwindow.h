@@ -41,6 +41,7 @@ public slots:
     void authorization_error();
     void check_account();
     void confirm_transfer();
+    void transfer_done();
 
 private slots:
     void changeAccount(int);

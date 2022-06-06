@@ -114,7 +114,8 @@ void netServices::get_account_transfers() {
     QString url = baseApiUrl + "/accounting/" +
             QString::fromStdString(accounts[index_current_acc].group_code) +
             "/transfers?filter[account]=" +
-            QString::fromStdString(accounts[index_current_acc].account_id);
+            QString::fromStdString(accounts[index_current_acc].account_id) +
+            "&sort=-created";
     QNetworkRequest networkRequest(url);
     oauth2.prepare_request(networkRequest);
 

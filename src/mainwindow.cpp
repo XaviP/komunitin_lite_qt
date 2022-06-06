@@ -161,6 +161,17 @@ void MainWindow::confirm_transfer() {
     transD.confirm_transfer(ns.newTrans);
 }
 
+void MainWindow::transfer_done() {
+    transD.ui->fromAccountLineEdit->setText("");
+    transD.ui->amountLineEdit->setText("");
+    transD.ui->conceptPlainTextEdit->setPlainText("");
+    transD.ui->fromAccountLineEdit->setEnabled(true);
+    transD.ui->amountLineEdit->setEnabled(true);
+    transD.ui->conceptPlainTextEdit->setEnabled(true);
+    transD.ui->continueButton->setEnabled(true);
+    transD.close();
+}
+
 void MainWindow::on_actionQuit_triggered() {
     QApplication::quit();
 }
