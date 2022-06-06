@@ -1,4 +1,5 @@
 #include <QMessageBox>
+#include <QRegularExpression>
 
 #include "transfer.h"
 #include "transferdialog.h"
@@ -28,6 +29,23 @@ void TransferDialog::on_cancelButton_clicked() {
 }
 
 void TransferDialog::on_continueButton_clicked() {
+    ui->fromAccountLineEdit->setText(ui->fromAccountLineEdit->text().trimmed());
+    ui->amountLineEdit->setText(ui->amountLineEdit->text().trimmed().replace(",","."));
+
+    static const QRegularExpression re1("^[A-Za-z0-9]{4}[0-9]{4}$");
+    static const QRegularExpression re2("^[0-9]+([.][0-9]+)?$");
+
+    if (!re1.match(ui->fromAccountLineEdit->text()).hasMatch()) {
+        ui->errorLabel->setText(tr("Invalid account code."));
+        return;
+    } else if (!re2.match(ui->amountLineEdit->text()).hasMatch() || ui->amountLineEdit->text().toInt() == 0 ) {
+        ui->errorLabel->setText(tr("Invalid amount."));
+        return;
+    } else if (ui->conceptPlainTextEdit->toPlainText().isEmpty()) {
+        ui->errorLabel->setText(tr("Concept cannot be empty."));
+        return;
+    }
+    ui->errorLabel->setText(tr("Checking account..."));
     ui->fromAccountLineEdit->setEnabled(false);
     ui->amountLineEdit->setEnabled(false);
     ui->conceptPlainTextEdit->setEnabled(false);
@@ -36,6 +54,7 @@ void TransferDialog::on_continueButton_clicked() {
 }
 
 void TransferDialog::confirm_transfer(transfer* newTrans) {
+    ui->errorLabel->setText(tr(""));
     QMessageBox* msgBox = new QMessageBox(this);
     msgBox->setWindowTitle(tr("Confirm new transfer"));
     QString message =
