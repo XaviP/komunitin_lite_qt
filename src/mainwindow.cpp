@@ -22,6 +22,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->setupUi(this);
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    QStringList labelHeaders;
+    labelHeaders << tr("created") << tr("about") << tr("from") << tr("to") << tr("amount") << tr("state");
+    ui->tableWidget->setHorizontalHeaderLabels( labelHeaders );
+    ui->statusbar->showMessage(tr("Loadind data..."));
     connect(ui->accountComboBox, SIGNAL(currentIndexChanged(int)),
                 this, SLOT(changeAccount(int)));
 }
@@ -78,19 +82,18 @@ void MainWindow::show_accounts_data() {
         }
     }
     ui->accountComboBox->setCurrentIndex(ns.index_current_acc);
-    ui->nameInsertLabel->setText(QString::fromStdString(ns.accounts[ns.index_current_acc].member_name));
+    ui->nameInsertLabel->setText(tr("Name") + ": " +
+                                 QString::fromStdString(ns.accounts[ns.index_current_acc].member_name));
     ui->statusbar->showMessage(tr("Loading balance data..."));
 }
 
 void MainWindow::show_account_balance() {
-    ui->balanceInsertLabel->setText(QString::fromStdString(ns.accounts[ns.index_current_acc].print_balance()));
+    ui->balanceInsertLabel->setText(tr("Balance") + ": " +
+                                    QString::fromStdString(ns.accounts[ns.index_current_acc].print_balance()));
     ui->statusbar->showMessage(tr("Loading transfers data..."));
 }
 
 void MainWindow::show_account_transfers() {
-    QStringList labelHeaders;
-    labelHeaders << tr("created") << tr("about") << tr("from") << tr("to") << tr("amount") << tr("state");
-    ui->tableWidget->setHorizontalHeaderLabels( labelHeaders );
 
     ui->statusbar->showMessage(tr("All data is loaded."));
     int rows = ns.accounts[ns.index_current_acc].transfers.size();
@@ -125,7 +128,7 @@ void MainWindow::changeAccount(int index) {
 void MainWindow::on_actionReload_transfer_triggered() {
     ui->tableWidget->clearContents();
     ui->tableWidget->setRowCount(1);
-    ui->statusbar->showMessage("Reloading transfers...");
+    ui->statusbar->showMessage(tr("Reloading transfers..."));
     emit change_account();
 }
 
@@ -145,7 +148,8 @@ void MainWindow::on_actionNew_User_triggered() {
     ui->accountComboBox->clear();
     ui->accountComboBox->blockSignals(false);
     ui->balanceInsertLabel->setText("");
-    ui->tableWidget->clear();
+    ui->tableWidget->clearContents();
+    ui->tableWidget->setRowCount(1);
 
     emit new_user();
 }
@@ -156,7 +160,7 @@ void MainWindow::on_actionNew_transaction_triggered() {
     transD.ui->toAccountLabel->setText(QString::fromStdString(ns.accounts[ns.index_current_acc].account_code));
     transD.ui->currencyLabel->setText(QString::fromStdString(ns.accounts[ns.index_current_acc].currency.plural));
     transD.open();
-    ui->statusbar->showMessage("New transfer");
+    ui->statusbar->showMessage(tr("New transfer"));
     emit new_transfer();
 }
 
@@ -173,7 +177,7 @@ void MainWindow::confirm_transfer() {
 }
 
 void MainWindow::transfer_done() {
-    ui->statusbar->showMessage("New transfer done");
+    ui->statusbar->showMessage(tr("New transfer is done"));
     transD.ui->fromAccountLineEdit->setText("");
     transD.ui->amountLineEdit->setText("");
     transD.ui->conceptPlainTextEdit->setPlainText("");

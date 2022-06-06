@@ -23,9 +23,10 @@ int main(int argc, char *argv[])
     }
 
     MainWindow w;
-    KStateMachine machine(w);
 
+    KStateMachine machine(w);
     machine.prepare_machine();
+
     w.show();
 
     return a.exec();

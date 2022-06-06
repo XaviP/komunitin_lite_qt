@@ -1,3 +1,5 @@
+#include <QRegularExpression>
+
 #include "logindialog.h"
 #include "./ui_logindialog.h"
 
@@ -24,17 +26,25 @@ std::string LoginDialog::get_password() {
     return ui->lineEditPassword->text().toStdString();
 }
 
-void LoginDialog::pushButtonLogin_clicked()
-{
-    if (get_email().empty() || get_password().empty()) {
-        qDebug() << "Empty user or password";
-    } else {
-        ui->pushButtonLogin->setEnabled(false);
-        ui->lineEditEmail->setEnabled(false);
-        ui->lineEditPassword->setEnabled(false);
-        ui->labelError->setText(tr("Checking autorization..."));
-        emit send_authorization();
+void LoginDialog::pushButtonLogin_clicked() {
+
+    static const QRegularExpression reEmail("^[A-Za-z-\\.]+@([A-Za-z-\\.])+[A-Za-z-]{2,4}$");
+
+    if (!reEmail.match(ui->lineEditEmail->text()).hasMatch()) {
+        ui->labelError->setText(tr("Invalid email"));
+        return;
     }
+    if (get_password().empty()) {
+        ui->labelError->setText(tr("Empty password"));
+        return;
+    }
+
+    ui->pushButtonLogin->setEnabled(false);
+    ui->lineEditEmail->setEnabled(false);
+    ui->lineEditPassword->setEnabled(false);
+    ui->labelError->setText(tr("Checking autorization..."));
+    emit send_authorization();
+
 }
 
 

@@ -246,32 +246,6 @@ void netServices::get_check_account_reply(QNetworkReply* getReply) {
     else {
         QString strReply = getReply->readAll();
         getReply->deleteLater();
-
-// reply sample:
-//{
-//    "data": {
-//        "type": "accounts",
-//        "id": "94a0533e-97d6-4eef-bbbd-2a3e4dac02a9",
-//        "attributes": {
-//            "code": "NET10002",
-//            "balance": 240,
-//            "creditLimit": -1,
-//            "debitLimit": -1
-//        },
-//        "relationships": {
-//            "currency": {
-//                "data": {
-//                    "type": "currencies",
-//                    "id": "8caff01c-4efa-41ef-bc55-c7c2c057be16"
-//                }
-//            }
-//        },
-//        "links": {
-//            "self": "https://demo.integralces.net/ces/api/accounting/NET1/accounts/NET10002"
-//        }
-//    }
-//}
-
         QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
 
         newTrans = new transfer(QUuid::createUuid().toString(QUuid::WithoutBraces).toStdString());
@@ -287,7 +261,6 @@ void netServices::get_check_account_reply(QNetworkReply* getReply) {
         newTrans->currency = accounts[index_current_acc].currency;
 
         emit confirm_transfer();
-
     }
 }
 

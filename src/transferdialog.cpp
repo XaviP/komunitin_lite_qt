@@ -65,7 +65,7 @@ void TransferDialog::confirm_transfer(transfer* newTrans) {
         tr("Amount") + " :" + QString::fromStdString(newTrans->print_amount()) + "\n" +
         tr("Concept") + ": " + QString::fromStdString(newTrans->meta);
     msgBox->setText(message);
-    msgBox->setInformativeText("Do you confirm to send this transfer?");
+    msgBox->setInformativeText(tr("Do you confirm to send this transfer?"));
     QPushButton *cancelButton = msgBox->addButton(QMessageBox::Abort);
     QPushButton *confirmButton = msgBox->addButton(tr("Confirm"), QMessageBox::ActionRole);
 
