@@ -18,12 +18,12 @@ LoginDialog::~LoginDialog()
     delete ui;
 }
 
-std::string LoginDialog::get_email() {
-    return ui->lineEditEmail->text().toStdString();
+QString LoginDialog::get_email() {
+    return ui->lineEditEmail->text();
 }
 
-std::string LoginDialog::get_password() {
-    return ui->lineEditPassword->text().toStdString();
+QString LoginDialog::get_password() {
+    return ui->lineEditPassword->text();
 }
 
 void LoginDialog::pushButtonLogin_clicked() {
@@ -34,7 +34,7 @@ void LoginDialog::pushButtonLogin_clicked() {
         ui->labelError->setText(tr("Invalid email"));
         return;
     }
-    if (get_password().empty()) {
+    if (ui->lineEditPassword->text().isEmpty()) {
         ui->labelError->setText(tr("Empty password"));
         return;
     }

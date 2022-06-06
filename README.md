@@ -17,12 +17,12 @@ Basic C++ Qt6 client for komunitin users.
   You can try to build for other platform/s from QtCreator.
   
   
-### TODO (see issues)
-
-- Make transfer
+### TODO ([see issues](https://github.com/komunitin/komunitin_lite_qt/issues))
 
 - CI to build on several platforms.
 
-- Tests, tests, tests...
+- Tests, tests, tests.
+
+- ...
 
 

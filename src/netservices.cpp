@@ -48,27 +48,26 @@ void netServices::get_accounts_reply(QNetworkReply* getReply) {
         QString strReply = getReply->readAll();
         getReply->deleteLater();
         QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
-        std::string user_id = jsonResponse.object()["data"].toObject()["id"].
-                toString().toStdString();
+        QString user_id = jsonResponse.object()["data"].toObject()["id"].toString();
         int sizeArray = jsonResponse.object()["included"].toArray().size();
 
         QJsonObject acc;
         for (int i=0; i < sizeArray; i++) {
             acc = jsonResponse.object()["included"].toArray()[i].toObject();
-            accounts.push_back(account(user_id, acc["id"].toString().toStdString()));
+            accounts.push_back(account(user_id, acc["id"].toString()));
             accounts[i].member_name = acc["attributes"].toObject()["name"].
-                    toString().toStdString();
+                    toString();
             accounts[i].member_image = acc["attributes"].toObject()["image"].
-                    toString().toStdString();
+                    toString();
             accounts[i].account_id = acc["relationships"].toObject()["account"].
-                    toObject()["data"].toObject()["id"].toString().toStdString();
+                    toObject()["data"].toObject()["id"].toString();
             accounts[i].account_code = acc["attributes"].toObject()["code"].
-                    toString().toStdString();
+                    toString();
             accounts[i].account_link = acc["relationships"].toObject()["account"].
-                    toObject()["links"].toObject()["related"].toString().toStdString();
+                    toObject()["links"].toObject()["related"].toString();
             accounts[i].group_id = acc["relationships"].toObject()["group"].
-                    toObject()["data"].toObject()["id"].toString().toStdString();
-            accounts[i].group_code = accounts[i].account_code.substr(0, 4);
+                    toObject()["data"].toObject()["id"].toString();
+            accounts[i].group_code = accounts[i].account_code.left(4);
         };
         index_current_acc = 0;
         emit has_accounts();
@@ -77,8 +76,7 @@ void netServices::get_accounts_reply(QNetworkReply* getReply) {
 
 void netServices::get_account_balance() {
     QNetworkRequest networkRequest(
-        QUrl(QString::fromStdString(accounts[index_current_acc].account_link) +
-             "?include=currency"));
+        QUrl(accounts[index_current_acc].account_link + "?include=currency"));
     oauth2.prepare_request(networkRequest);
 
     netManager->get(networkRequest);
@@ -99,12 +97,12 @@ void netServices::get_account_balance_reply(QNetworkReply* getReply) {
         accounts[index_current_acc].balance = jsonResponse.object()["data"].toObject()["attributes"].
                 toObject()["balance"].toDouble();
         accounts[index_current_acc].currency.id =  jsonResponse.object()["included"].toArray()[0].
-                toObject()["id"].toString().toStdString();
+                toObject()["id"].toString();
         QJsonObject attr = jsonResponse.object()["included"].toArray()[0].
                 toObject()["attributes"].toObject();
-        accounts[index_current_acc].currency.name = attr["name"].toString().toStdString();
-        accounts[index_current_acc].currency.plural = attr["namePlural"].toString().toStdString();
-        accounts[index_current_acc].currency.symbol = attr["symbol"].toString().toStdString();
+        accounts[index_current_acc].currency.name = attr["name"].toString();
+        accounts[index_current_acc].currency.plural = attr["namePlural"].toString();
+        accounts[index_current_acc].currency.symbol = attr["symbol"].toString();
         accounts[index_current_acc].currency.decimals = attr["decimals"].toString().toInt();
         emit has_balance();
     }
@@ -112,9 +110,9 @@ void netServices::get_account_balance_reply(QNetworkReply* getReply) {
 
 void netServices::get_account_transfers() {
     QString url = baseApiUrl + "/accounting/" +
-            QString::fromStdString(accounts[index_current_acc].group_code) +
+            accounts[index_current_acc].group_code +
             "/transfers?filter[account]=" +
-            QString::fromStdString(accounts[index_current_acc].account_id) +
+            accounts[index_current_acc].account_id +
             "&sort=-created";
     QNetworkRequest networkRequest(url);
     oauth2.prepare_request(networkRequest);
@@ -142,34 +140,30 @@ void netServices::get_account_transfers_reply(QNetworkReply* getReply) {
         }
 
         QJsonObject trans;
-        std::vector<string> unknown_accounts;
+        std::vector<QString> unknown_accounts;
         for (int i=0; i < sizeArray; i++) {
             trans = jsonResponse.object()["data"].toArray()[i].toObject();
-            accounts[index_current_acc].transfers.push_back(transfer(trans["id"].toString().toStdString()));
+            accounts[index_current_acc].transfers.push_back(transfer(trans["id"].toString()));
             transfer* p = &accounts[index_current_acc].transfers.back();
             p->amount = trans["attributes"].toObject()["amount"].toInt();
-            p->meta = trans["attributes"].toObject()["meta"].
-                    toString().toStdString();
-            p->state = trans["attributes"].toObject()["state"].
-                    toString().toStdString();
-            p->created = trans["attributes"].toObject()["created"].
-                    toString().toStdString();
-            p->updated = trans["attributes"].toObject()["updated"].
-                    toString().toStdString();
+            p->meta = trans["attributes"].toObject()["meta"].toString();
+            p->state = trans["attributes"].toObject()["state"].toString();
+            p->created = trans["attributes"].toObject()["created"].toString();
+            p->updated = trans["attributes"].toObject()["updated"].toString();
             p->payer_account_id = trans["relationships"].toObject()["payer"].
-                    toObject()["data"].toObject()["id"].toString().toStdString();
+                    toObject()["data"].toObject()["id"].toString();
             if (p->payer_account_id == accounts[index_current_acc].account_id) {
                 p->payer_account_code = accounts[index_current_acc].account_code;
             }
             else {unknown_accounts.push_back(p->payer_account_id);}
             p->payee_account_id = trans["relationships"].toObject()["payee"].
-                    toObject()["data"].toObject()["id"].toString().toStdString();
+                    toObject()["data"].toObject()["id"].toString();
             if (p->payee_account_id == accounts[index_current_acc].account_id) {
                 p->payee_account_code = accounts[index_current_acc].account_code;
             }
             else {unknown_accounts.push_back(p->payee_account_id);}
             p->currency.id = trans["relationships"].toObject()["currency"].
-                    toObject()["data"].toObject()["id"].toString().toStdString();
+                    toObject()["data"].toObject()["id"].toString();
             if (p->currency.id == accounts[index_current_acc].currency.id) {
                 p->currency = accounts[index_current_acc].currency;
             }
@@ -184,8 +178,8 @@ void netServices::get_account_transfers_reply(QNetworkReply* getReply) {
 }
 
 void netServices::get_unknown_accounts() {
-    QString url = baseApiUrl + "/social/" + QString::fromStdString(accounts[index_current_acc].group_code) +
-            "/members?filter[account]=" + QString::fromStdString(comma_list);
+    QString url = baseApiUrl + "/social/" + accounts[index_current_acc].group_code +
+            "/members?filter[account]=" + comma_list;
     QNetworkRequest networkRequest(url);
     oauth2.prepare_request(networkRequest);
 
@@ -208,17 +202,17 @@ void netServices::get_unknown_accounts_reply(QNetworkReply* getReply) {
         QJsonObject da;
         for (int i=0; i < sizeArray; i++) {
             da = jsonResponse.object()["data"].toArray()[i].toObject();
-            string id = da["relationships"].toObject()["account"].toObject()
-                    ["data"].toObject()["id"].toString().toStdString();
+            QString id = da["relationships"].toObject()["account"].toObject()
+                    ["data"].toObject()["id"].toString();
             for (int j=0; j < (int)accounts[index_current_acc].transfers.size(); j++) {
                 transfer* p = &accounts[index_current_acc].transfers[j];
                 if (id == p->payer_account_id) {
                     p->payer_account_code = da["attributes"].toObject()["code"].
-                            toString().toStdString();
+                            toString();
                 } else {
                     if (id == p->payee_account_id) {
                         p->payee_account_code = da["attributes"].toObject()["code"].
-                            toString().toStdString();
+                            toString();
                     }
                 }
             }
@@ -248,14 +242,14 @@ void netServices::get_check_account_reply(QNetworkReply* getReply) {
         getReply->deleteLater();
         QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
 
-        newTrans = new transfer(QUuid::createUuid().toString(QUuid::WithoutBraces).toStdString());
+        newTrans = new transfer(QUuid::createUuid().toString(QUuid::WithoutBraces));
         newTrans->amount = 0;
         newTrans->meta = "";
         newTrans->state = "committed";
         newTrans->created = "";
         newTrans->updated = "";
-        newTrans->payer_account_id = jsonResponse.object()["data"].toObject()["id"].toString().toStdString();
-        newTrans->payer_account_code = jsonResponse.object()["data"].toObject()["attributes"].toObject()["code"].toString().toStdString();;
+        newTrans->payer_account_id = jsonResponse.object()["data"].toObject()["id"].toString();
+        newTrans->payer_account_code = jsonResponse.object()["data"].toObject()["attributes"].toObject()["code"].toString();;
         newTrans->payee_account_id = accounts[index_current_acc].account_id;
         newTrans->payee_account_code = accounts[index_current_acc].account_code;
         newTrans->currency = accounts[index_current_acc].currency;
@@ -292,16 +286,16 @@ void netServices::post_new_transfer() {
             "}"
         "}"
     "}").arg(
-        QString::fromStdString(newTrans->id),
+        newTrans->id,
         QString::number(newTrans->amount),
-        QString::fromStdString(newTrans->meta),
-        QString::fromStdString(newTrans->payer_account_id),
-        QString::fromStdString(newTrans->payee_account_id)
+        newTrans->meta,
+        newTrans->payer_account_id,
+        newTrans->payee_account_id
     );
     QJsonDocument json_to_post = QJsonDocument::fromJson(payload.toUtf8());
     QByteArray postData = json_to_post.toJson();
 
-    QUrl url = QUrl(baseApiUrl + "/accounting/" + QString::fromStdString(accounts[index_current_acc].group_code) + "/transfers");
+    QUrl url = QUrl(baseApiUrl + "/accounting/" + accounts[index_current_acc].group_code + "/transfers");
     QNetworkRequest networkRequest(url);
 
     networkRequest.setHeader(QNetworkRequest::ContentTypeHeader,

@@ -3,7 +3,7 @@
 #include <string>
 #include "transfer.h"
 
-transfer::transfer(const string& trans_id)
+transfer::transfer(const QString& trans_id)
     : id(trans_id)
 {}
 
@@ -13,13 +13,13 @@ int transfer::get_factor() {
     return factor;
 }
 
-string transfer::print_amount() {
+QString transfer::print_amount() {
     std::stringstream stream;
     stream << std::fixed << std::setprecision(currency.decimals) << (float(amount)/float(get_factor()));
-    return stream.str() + " " + currency.plural;
+    return QString::fromStdString(stream.str() + " " + currency.plural.toStdString());
 }
 
-string transfer::print_transfer() {
+QString transfer::print_transfer() {
     return "from " + payer_account_code + " to " + payee_account_code +
            ": " + print_amount() + "\n";
 }

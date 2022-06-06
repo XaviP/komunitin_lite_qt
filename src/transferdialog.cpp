@@ -60,10 +60,10 @@ void TransferDialog::confirm_transfer(transfer* newTrans) {
     QMessageBox* msgBox = new QMessageBox(this);
     msgBox->setWindowTitle(tr("Confirm new transfer"));
     QString message =
-        tr("From") + " " + QString::fromStdString(newTrans->payer_account_code) + " " +
-        tr("to") + " " + QString::fromStdString(newTrans->payee_account_code) + "\n" +
-        tr("Amount") + " :" + QString::fromStdString(newTrans->print_amount()) + "\n" +
-        tr("Concept") + ": " + QString::fromStdString(newTrans->meta);
+        tr("From") + " " + newTrans->payer_account_code + " " +
+        tr("to") + " " + newTrans->payee_account_code + "\n" +
+        tr("Amount") + " :" + newTrans->print_amount() + "\n" +
+        tr("Concept") + ": " + newTrans->meta;
     msgBox->setText(message);
     msgBox->setInformativeText(tr("Do you confirm to send this transfer?"));
     QPushButton *cancelButton = msgBox->addButton(QMessageBox::Abort);

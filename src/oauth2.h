@@ -33,7 +33,7 @@ private slots:
     void refresh_tokens_reply(QNetworkReply*);
 
 public slots:
-    void get_access(const std::string&, const std::string&);
+    void get_access(const QString&, const QString&);
     void refresh_tokens();
 
 signals:

@@ -24,7 +24,7 @@ public:
     Oauth2 oauth2;
     std::vector<account> accounts;
     int index_current_acc;
-    string comma_list;
+    QString comma_list;
     transfer* newTrans;
 
 private slots:

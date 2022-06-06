@@ -14,8 +14,8 @@ class LoginDialog : public QDialog
 public:
     explicit LoginDialog(QWidget *parent = nullptr);
     ~LoginDialog();
-    std::string get_email();
-    std::string get_password();
+    QString get_email();
+    QString get_password();
     Ui::LoginDialog *ui;
 
 private:

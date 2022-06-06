@@ -3,29 +3,29 @@
 #include <string>
 #include "account.h"
 
-account::account(const std::string& uid, const std::string& mid)
+account::account(const QString& uid, const QString& mid)
     : user_id(uid), member_id(mid)
 {}
 
-string account::print_balance() {
+QString account::print_balance() {
     int factor = 1;
     for (int i=0; i<currency.decimals; i++) { factor *= 10; }
 
     std::stringstream stream;
     stream << std::fixed << std::setprecision(currency.decimals) << (float(balance)/float(factor));
-    return stream.str() + " " + currency.plural;
+    return QString::fromStdString(stream.str() + " " + currency.plural.toStdString());
 }
 
-string account::print_transfers() {
-    string out = "";
+QString account::print_transfers() {
+    QString out = "";
     for (int i=0; i<(int)transfers.size(); i++) {
         out += transfers[i].print_transfer();
     }
     return out;
 }
 
-string account::print_account() {
-    string out = "";
+QString account::print_account() {
+    QString out = "";
 
     out += "user id: " + user_id + "\n";
     out += "member id: " + member_id + "\n";
@@ -41,7 +41,7 @@ string account::print_account() {
     out += "currency name: " + currency.name + "\n";
     out += "currency plural: " + currency.plural + "\n";
     out += "currency symbol: " + currency.symbol + "\n";
-    out += "currency decimals: " + std::to_string(currency.decimals) + "\n";
+    out += "currency decimals: " + QString::number(currency.decimals) + "\n";
     out += "transfers :\n";
     out += print_transfers();
 

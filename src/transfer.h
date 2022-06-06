@@ -1,37 +1,37 @@
 #ifndef TRANSFER_H
 #define TRANSFER_H
 
-#include <string>
+#include <QString>
 
 using namespace std;
 
 struct Currency {
-    string id;
-    string name;
-    string plural;
-    string symbol;
+    QString id;
+    QString name;
+    QString plural;
+    QString symbol;
     int decimals;
 };
 
 class transfer
 {
 public:
-    transfer(const string& trans_id);
-    string id;
+    transfer(const QString& trans_id);
+    QString id;
     int amount;
-    string meta;
-    string state;
-    string created;
-    string updated;
-    string payer_account_id;
-    string payer_account_code;
-    string payee_account_id;
-    string payee_account_code;
+    QString meta;
+    QString state;
+    QString created;
+    QString updated;
+    QString payer_account_id;
+    QString payer_account_code;
+    QString payee_account_id;
+    QString payee_account_code;
     Currency currency;
 
     int get_factor();
-    string print_amount();
-    string print_transfer();
+    QString print_amount();
+    QString print_transfer();
 };
 
 #endif // TRANSFER_H

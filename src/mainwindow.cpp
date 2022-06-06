@@ -56,7 +56,7 @@ void MainWindow::ask_for_new_auth() {
 
 void MainWindow::try_authorization() {
     ui->statusbar->showMessage(tr("Trying authorization..."));
-    kSettings.user_email = QString::fromStdString(loginD.get_email());
+    kSettings.user_email = loginD.get_email();
     ns.oauth2.get_access(loginD.get_email(), loginD.get_password());
 }
 
@@ -78,18 +78,16 @@ void MainWindow::show_accounts_data() {
     }
     if (ui->accountComboBox->count() == 0) {
         for (int i=0; i  < (int)ns.accounts.size(); i++) {
-            ui->accountComboBox->addItem(QString::fromStdString(ns.accounts[i].account_code));
+            ui->accountComboBox->addItem(ns.accounts[i].account_code);
         }
     }
     ui->accountComboBox->setCurrentIndex(ns.index_current_acc);
-    ui->nameInsertLabel->setText(tr("Name") + ": " +
-                                 QString::fromStdString(ns.accounts[ns.index_current_acc].member_name));
+    ui->nameInsertLabel->setText(tr("Name") + ": " + ns.accounts[ns.index_current_acc].member_name);
     ui->statusbar->showMessage(tr("Loading balance data..."));
 }
 
 void MainWindow::show_account_balance() {
-    ui->balanceInsertLabel->setText(tr("Balance") + ": " +
-                                    QString::fromStdString(ns.accounts[ns.index_current_acc].print_balance()));
+    ui->balanceInsertLabel->setText(tr("Balance") + ": " + ns.accounts[ns.index_current_acc].print_balance());
     ui->statusbar->showMessage(tr("Loading transfers data..."));
 }
 
@@ -100,8 +98,8 @@ void MainWindow::show_account_transfers() {
     ui->tableWidget->setRowCount(rows);
     for (int row = 0; row < rows; row++) {
         transfer trans = ns.accounts[ns.index_current_acc].transfers[row];
-        string data[6] = {
-            trans.created.substr(0, 10),
+        QString data[6] = {
+            trans.created.left(10),
             trans.meta,
             trans.payer_account_code,
             trans.payee_account_code,
@@ -110,7 +108,7 @@ void MainWindow::show_account_transfers() {
         };
         for (int column = 0; column < 6; column++) {
             QTableWidgetItem * cellItem = new QTableWidgetItem();
-            cellItem->setData(Qt::DisplayRole, QString::fromStdString(data[column]));
+            cellItem->setData(Qt::DisplayRole, data[column]);
             ui->tableWidget->setItem( row, column, cellItem );
         }
     }
@@ -155,10 +153,10 @@ void MainWindow::on_actionNew_User_triggered() {
 }
 
 void MainWindow::on_actionNew_transaction_triggered() {
-    transD.current_group = QString::fromStdString(ns.accounts[ns.index_current_acc].group_code);
+    transD.current_group = ns.accounts[ns.index_current_acc].group_code;
     transD.setWindowTitle(tr("New transfer in group") + " " + transD.current_group);
-    transD.ui->toAccountLabel->setText(QString::fromStdString(ns.accounts[ns.index_current_acc].account_code));
-    transD.ui->currencyLabel->setText(QString::fromStdString(ns.accounts[ns.index_current_acc].currency.plural));
+    transD.ui->toAccountLabel->setText(ns.accounts[ns.index_current_acc].account_code);
+    transD.ui->currencyLabel->setText(ns.accounts[ns.index_current_acc].currency.plural);
     transD.open();
     ui->statusbar->showMessage(tr("New transfer"));
     emit new_transfer();
@@ -166,13 +164,13 @@ void MainWindow::on_actionNew_transaction_triggered() {
 
 void MainWindow::check_account() {
     QString fromAccount = transD.ui->fromAccountLineEdit->text();
-    QString groupCode = QString::fromStdString(ns.accounts[ns.index_current_acc].group_code);
+    QString groupCode = ns.accounts[ns.index_current_acc].group_code;
     ns.get_check_account(groupCode, fromAccount);
 }
 
 void MainWindow::confirm_transfer() {
     ns.newTrans->amount =  int(transD.ui->amountLineEdit->text().toFloat() * ns.newTrans->get_factor());
-    ns.newTrans->meta = transD.ui->conceptPlainTextEdit->toPlainText().toStdString();
+    ns.newTrans->meta = transD.ui->conceptPlainTextEdit->toPlainText();
     transD.confirm_transfer(ns.newTrans);
 }
 

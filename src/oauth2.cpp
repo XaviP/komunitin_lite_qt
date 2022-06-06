@@ -33,14 +33,14 @@ void Oauth2::check_tokens() {
     }
 }
 
-void Oauth2::get_access(const std::string& email, const std::string& password)
+void Oauth2::get_access(const QString& email, const QString& password)
 {
-    kSettingsP->user_email = QString::fromStdString(email);
+    kSettingsP->user_email = email;
 
     QUrlQuery query;
     query.addQueryItem("grant_type","password");
-    query.addQueryItem("username", QString::fromStdString(email));
-    query.addQueryItem("password", QString::fromStdString(password));
+    query.addQueryItem("username", email);
+    query.addQueryItem("password", password);
     query.addQueryItem("client_id", oauth2ClientId);
 //    query.addQueryItem("client_secret", oauth2ClientPassword);
     query.addQueryItem("scope", oauth2Scope);
