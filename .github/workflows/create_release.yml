@@ -1,0 +1,58 @@
+name: create_release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  linux_build:
+    name: Build KomunitinLite (Linux)
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: |
+       sudo apt-get update -yq &&
+       sudo apt-get install -y  g++ build-essential mesa-common-dev libssl-dev \
+                                wget lsb libgl1-mesa-dev libxkbcommon-x11-0 libpulse-dev
+    - name: Set up Python 3.x
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.x
+    - name: Install qt
+      run: | 
+        pip install yaqti &&
+        python -m yaqti install --version 6.2.4 --platform desktop --os linux --modules qtstatemachines
+    - name: Install cmake 
+      run: |
+        mkdir cmake && cd cmake &&
+        wget https://github.com/Kitware/CMake/releases/download/v3.21.0/cmake-3.21.0-linux-x86_64.sh &&
+        sh ./cmake-3.21.0-linux-x86_64.sh --skip-license
+    - name: Build Komunitin Lite
+      run: |
+        mkdir build && cd build && 
+        cmake .. -DCMAKE_PREFIX_PATH=/home/runner/work/komunitin_lite_qt/komunitin_lite_qt/qt/6.2.4/gcc_64 && make -j4
+  windows_build:
+    name: Build KomunitinLite (Windows)
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup MSVC
+      uses: ilammy/msvc-dev-cmd@v1
+    - name: Set up Python 3.x
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.x
+    - name: Install qt
+      run: | 
+        pip install yaqti &&
+        python -m yaqti install --version 6.2.4 --platform desktop --os windows --modules qtstatemachines
+    - name: Install cmake 
+      run: |
+        mkdir cmake && cd cmake &&
+        Invoke-WebRequest -Uri https://github.com/Kitware/CMake/releases/download/v3.21.1/cmake-3.21.1-windows-x86_64.msi -OutFile cmake-3.21.1-windows-x86_64.msi &&
+        ./cmake-3.21.1-windows-x86_64.msi --skip-license
+    - name: Build Komunitin Lite
+      run: |
+        mkdir build && cd build && 
+        cmake .. -DCMAKE_PREFIX_PATH=/Users/runner/work/komunitin_lite_qt/komunitin_lite_qt/qt/6.2.4/windows && make -j4
