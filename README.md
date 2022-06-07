@@ -6,6 +6,12 @@ Basic C++ Qt6 client for komunitin users.
 ![Screenshot](docs/komunitin_lite_qt.png)
 
 
+
+### Install
+
+Check [Releases](https://github.com/komunitin/komunitin_lite_qt/releases) for binaries.
+
+
 ### Build notes:
 
 - Qt6.2 LTS (with Network, Widgets and StateMachine modules).
@@ -16,7 +22,7 @@ Basic C++ Qt6 client for komunitin users.
 - Build for linux desktop is well tested.
   You can try to build for other platform/s from QtCreator.
   
-  
+
 ### TODO ([see issues](https://github.com/komunitin/komunitin_lite_qt/issues))
 
 - CI to build on several platforms.
