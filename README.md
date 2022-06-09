@@ -7,7 +7,7 @@ Basic C++ Qt6 client for komunitin users.
 
 
 
-### Install
+### Install:
 
 Check [Releases](https://github.com/komunitin/komunitin_lite_qt/releases) for binaries.
 
@@ -22,6 +22,15 @@ Check [Releases](https://github.com/komunitin/komunitin_lite_qt/releases) for bi
 - Build for linux desktop is well tested.
   You can try to build for other platform/s from QtCreator.
   
+
+### Development:
+
+There are two main branches in this repository:
+
+- main: it works with Qt Quick QML (the current development for mobile devices)
+
+- main_widgets: it works with Qt Widgets (development for desktop only)
+
 
 ### TODO ([see issues](https://github.com/komunitin/komunitin_lite_qt/issues))
 

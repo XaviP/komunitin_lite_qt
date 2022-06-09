@@ -6,7 +6,7 @@
 #include "./ui_mainwindow.h"
 #include "./ui_logindialog.h"
 #include "transferdialog.h"
-#include "ui_transferdialog.h"
+#include "./ui_transferdialog.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
