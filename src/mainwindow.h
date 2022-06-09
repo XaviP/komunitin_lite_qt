@@ -25,9 +25,7 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    bool firstTimeShown;
     void prepare_machine();
-    void showEvent(QShowEvent*);
     void loadSettings();
     void saveSettings();
     void closeEvent(QCloseEvent *event);
@@ -44,6 +42,7 @@ public slots:
     void transfer_done();
 
 private slots:
+    void appIsReady();
     void changeAccount(int);
     void on_actionQuit_triggered();
     void on_actionNew_transaction_triggered();
@@ -51,7 +50,7 @@ private slots:
     void on_actionReload_transfer_triggered();
 
 signals:
-    void window_shown();
+    void app_is_ready();
     void change_account();
     void new_user();
     void new_transfer();

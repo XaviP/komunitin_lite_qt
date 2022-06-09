@@ -14,8 +14,7 @@ MainWindow::MainWindow(QWidget *parent)
       ns(),
       kSettings(),
       loginD(this),
-      transD(this),
-      firstTimeShown(true)
+      transD(this)
 {
     loadSettings();
     ns.oauth2.kSettingsP = &kSettings;
@@ -28,6 +27,10 @@ MainWindow::MainWindow(QWidget *parent)
     ui->statusbar->showMessage(tr("Loadind data..."));
     connect(ui->accountComboBox, SIGNAL(currentIndexChanged(int)),
                 this, SLOT(changeAccount(int)));
+
+    // wait 100ms (non-blocking) for QApplication::exec()
+    // to get the state machine really started.
+    QTimer::singleShot(100, this, SLOT(appIsReady()));
 }
 
 MainWindow::~MainWindow()
@@ -35,19 +38,9 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::showEvent(QShowEvent *e) {
-    QMainWindow::showEvent(e);
-    if (firstTimeShown == true) {
-        firstTimeShown = false;
-
-        // wait 100ms (non-blocking) for QApplication::exec()
-        // to get the state machine really started.
-        QEventLoop loop;
-        QTimer::singleShot(100, &loop, SLOT(quit()));
-        loop.exec();
-
-        emit window_shown();
-    }
+void MainWindow::appIsReady() {
+    // transite to 2nd state in state machine
+    emit app_is_ready();
 }
 
 void MainWindow::ask_for_new_auth() {

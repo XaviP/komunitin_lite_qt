@@ -57,7 +57,7 @@ void KStateMachine::prepare_machine() {
     s3->setInitialState(s30ShowDialog);
 
     // group s1
-    s10NoAccess->addTransition(&mw, SIGNAL(window_shown()), s11CheckTokens);
+    s10NoAccess->addTransition(&mw, SIGNAL(app_is_ready()), s11CheckTokens);
     s11CheckTokens->addTransition(&mw.ns.oauth2, SIGNAL(has_access()), s12HasAccess);
     s12HasAccess->addTransition(&mw.ns, SIGNAL(has_accounts()), s13HasAccounts);
     s13HasAccounts->addTransition(&mw.ns, SIGNAL(has_balance()), s14HasBalance);
