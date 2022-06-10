@@ -1,33 +1,40 @@
-#include "mainwindow.h"
-#include "kstatemachine.h"
-
-#include <QApplication>
+#include <QGuiApplication>
+#include <QQmlApplicationEngine>
 #include <QLocale>
 #include <QTranslator>
 
+#include "backend.h"
+#include "kstatemachine.h"
+
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    a.setOrganizationName("Komunitin");
-    a.setOrganizationDomain("komunitin");
-    a.setApplicationName("komunitin_lite_qt");
+    QGuiApplication app(argc, argv);
+    app.setOrganizationName("komunitin.org");
+    app.setOrganizationDomain("lite.komunitin.org");
+    app.setApplicationName("komunitin_lite");
 
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();
     for (const QString &locale : uiLanguages) {
-        const QString baseName = "komunitin_lite_qt_" + QLocale(locale).name();
+        const QString baseName = "komunitin_lite_" + QLocale(locale).name();
         if (translator.load(":/i18n/" + baseName)) {
-            a.installTranslator(&translator);
+            app.installTranslator(&translator);
             break;
         }
     }
 
-    MainWindow w;
-
-    KStateMachine machine(w);
+    Backend bckend;
+    KStateMachine machine(bckend);
     machine.prepare_machine();
 
-    w.show();
+    QQmlApplicationEngine engine;
+    const QUrl url(u"qrc:qml/main.qml"_qs);
+    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
+                     &app, [url](QObject *obj, const QUrl &objUrl) {
+        if (!obj && url == objUrl)
+            QCoreApplication::exit(-1);
+    }, Qt::QueuedConnection);
+    engine.load(url);
 
-    return a.exec();
+    return app.exec();
 }

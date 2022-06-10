@@ -4,15 +4,15 @@
 #include <QStateMachine>
 #include <QHistoryState>
 
-#include "mainwindow.h"
+#include "backend.h"
 
 class KStateMachine : public QStateMachine
 {
 private:
-     MainWindow& mw;
+     Backend& mw;
 
 public:
-    KStateMachine(MainWindow&, QObject *parent = nullptr);
+    KStateMachine(Backend&, QObject *parent = nullptr);
     ~KStateMachine();
     QState *s1;
     QHistoryState *s1H;

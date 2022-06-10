@@ -1,30 +1,21 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
+#include <QCloseEvent>
 #include "netservices.h"
-#include "logindialog.h"
-#include "transferdialog.h"
 
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
-QT_END_NAMESPACE
-
-class MainWindow : public QMainWindow
+class Backend : public QObject
 {
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    Backend(QObject *parent = nullptr);
+    ~Backend();
     netServices ns;
-    LoginDialog loginD;
-    TransferDialog transD;
     komunitin_settings kSettings;
 
 private:
-    Ui::MainWindow *ui;
     void prepare_machine();
     void loadSettings();
     void saveSettings();

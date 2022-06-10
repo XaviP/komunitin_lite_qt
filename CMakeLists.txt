@@ -11,20 +11,17 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Network Widgets StateMachine LinguistTools)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Network Widgets StateMachine LinguistTools)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Quick Network StateMachine LinguistTools)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Quick Network StateMachine LinguistTools)
 
 set(TS_FILES ts/komunitin_lite_ca_ES.ts)
 
 set(PROJECT_SOURCES
         src/main.cpp
-        src/mainwindow.cpp
-        src/mainwindow.h
-        src/mainwindow.ui
+        src/backend.cpp
+        src/backend.h
         src/kstatemachine.h
         src/kstatemachine.cpp
-        src/logindialog.ui
-        src/transferdialog.ui
         src/account.h
         src/account.cpp
         src/transfer.h
@@ -33,18 +30,20 @@ set(PROJECT_SOURCES
         src/oauth2.cpp
         src/netservices.h
         src/netservices.cpp
-        src/logindialog.h
-        src/logindialog.cpp
-        src/transferdialog.h
-        src/transferdialog.cpp
         ${TS_FILES}
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(komunitin_lite
+    qt_add_executable(komunitinLite
         MANUAL_FINALIZATION
         svg/icons.qrc
+        src/qml/qml.qrc
         ${PROJECT_SOURCES}
+    )
+    qt_add_qml_module(komunitinLite
+        URI komunitin_lite
+        VERSION 1.0
+        QML_FILES src/qml/main.qml
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET komunitin_lite APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
@@ -54,13 +53,13 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 else()
     if(ANDROID)
-        add_library(komunitin_lite SHARED
+        add_library(komunitinLite SHARED
             ${PROJECT_SOURCES}
         )
 # Define properties for Android with Qt 5 after find_package() calls as:
 #    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
     else()
-        add_executable(komunitin_lite
+        add_executable(komunitinLite
             ${PROJECT_SOURCES}
         )
     endif()
@@ -68,9 +67,9 @@ else()
     qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 endif()
 
-target_link_libraries(komunitin_lite PRIVATE Qt${QT_VERSION_MAJOR}::Network Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::StateMachine)
+target_link_libraries(komunitinLite PRIVATE Qt${QT_VERSION_MAJOR}::Network Qt${QT_VERSION_MAJOR}::Quick Qt${QT_VERSION_MAJOR}::StateMachine)
 
-set_target_properties(komunitin_lite PROPERTIES
+set_target_properties(komunitinLite PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER lite.komunitin.org
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
@@ -79,5 +78,5 @@ set_target_properties(komunitin_lite PROPERTIES
 )
 
 if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(komunitin_lite)
+    qt_finalize_executable(komunitinLite)
 endif()
