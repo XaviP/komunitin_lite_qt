@@ -3,11 +3,12 @@
 
 #include <QCloseEvent>
 #include "netservices.h"
-
+#include "qqmlregistration.h"
 
 class Backend : public QObject
 {
     Q_OBJECT
+    QML_ELEMENT
 
 public:
     Backend(QObject *parent = nullptr);
@@ -22,6 +23,7 @@ private:
     void closeEvent(QCloseEvent *event);
 
 public slots:
+    void test_qml();
     void show_accounts_data();
     void show_account_balance();
     void show_account_transfers();

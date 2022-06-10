@@ -1,5 +1,6 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QQmlContext>
 #include <QLocale>
 #include <QTranslator>
 
@@ -23,11 +24,13 @@ int main(int argc, char *argv[])
         }
     }
 
-    Backend bckend;
-    KStateMachine machine(bckend);
+    Backend backend;
+    KStateMachine machine(backend);
     machine.prepare_machine();
 
     QQmlApplicationEngine engine;
+    engine.rootContext()->setContextProperty("backend", &backend);
+
     const QUrl url(u"qrc:qml/main.qml"_qs);
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {

@@ -20,6 +20,10 @@ Backend::Backend(QObject *parent)
 Backend::~Backend()
 {}
 
+void Backend::test_qml() {
+    qDebug() << "connected to QML";
+}
+
 void Backend::appIsReady() {
     // transite to 2nd state in state machine
     emit app_is_ready();
