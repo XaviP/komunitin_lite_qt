@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>komunitin_icon.svg</file>
+        <file>komunitin_logo.svg</file>
         <file>menu.svg</file>
         <file>refresh.svg</file>
     </qresource>
