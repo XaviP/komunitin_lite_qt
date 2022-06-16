@@ -166,10 +166,6 @@ void Backend::transfer_done() {
 //    transD.close();
 }
 
-void Backend::on_actionQuit_triggered() {
-//    QApplication::quit();
-}
-
 void Backend::loadSettings()
 {
   QSettings settings;

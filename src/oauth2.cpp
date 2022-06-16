@@ -14,13 +14,14 @@ const char oauth2Scope[] = "komunitin_accounting komunitin_social profile";
 Oauth2::Oauth2(QNetworkAccessManager* netManagerP, QObject *parent)
     : QObject(parent),
       netM(netManagerP),
-      kSettingsP(),
-      hasAccess(false)
+      hasAccess(false),
+      kSettingsP()
 {}
 
 void Oauth2::check_tokens() {
     if (kSettingsP->access_token.isEmpty()) {
         hasAccess = false;
+        qDebug() << "going to emit new_auth";
         emit new_auth();
     } else {
         if (kSettingsP->created + kSettingsP->expires_in < QDateTime::currentSecsSinceEpoch()) {

@@ -6,6 +6,7 @@ KStateMachine::KStateMachine (Backend& mainwindow, QObject *parent) :
 
     // group s1: flow with valid tokens
     s1(new QState()),
+    s1H(new QHistoryState(s1)),
     s10NoAccess(new QState(s1)),
     s11CheckTokens(new QState(s1)),
     s12HasAccess(new QState(s1)),
@@ -13,7 +14,6 @@ KStateMachine::KStateMachine (Backend& mainwindow, QObject *parent) :
     s14HasBalance(new QState(s1)),
     s15HasTransfers(new QState(s1)),
     s16HasAllData(new QState(s1)),
-    s1H(new QHistoryState(s1)),
 
     // group s2: email/passwd authentication
     s2(new QState()),

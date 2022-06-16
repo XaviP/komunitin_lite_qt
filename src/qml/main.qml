@@ -17,6 +17,29 @@ Window {
 //    Material.theme: Material.Light
 //    Material.accent: Material.Green
 
+    Dialog {
+        id: loginDialog
+        width: parent.width
+        height: parent.height
+        title: "Login"
+        modal: true
+        standardButtons: Dialog.Ok | Dialog.Cancel
+
+        onAccepted: console.log("Ok clicked")
+        onRejected: console.log("Cancel clicked")
+    }
+    Dialog {
+        id: transferDialog
+        title: "New Transfer"
+        modal: true
+        standardButtons: Dialog.Ok | Dialog.Cancel
+        width: parent.width
+        height: parent.height
+
+        onAccepted: console.log("Ok clicked")
+        onRejected: console.log("Cancel clicked")
+    }
+
     Column {
         id: columnMain
         anchors.fill: parent
@@ -54,7 +77,44 @@ Window {
                         anchors.leftMargin: 10
                         onClicked: {
                             backend.test_qml()
-                            console.log("from qml to console")
+                            menu.open()
+                            console.log("open menu")
+                        }
+                        Menu {
+                            id: menu
+                            modal: true
+                            y : fileButton.height
+                            MenuItem
+                            {
+                                text: "Reload transfers"
+                                onClicked: {
+                                    console.log("reload transfers")
+                                }
+                            }
+                            MenuItem
+                            {
+                                text: "New transfer"
+                                onClicked: {
+                                    console.log("new transfer")
+                                    transferDialog.open()
+                                }
+                            }
+                            MenuItem
+                            {
+                                text: "New user"
+                                onClicked: {
+                                    console.log("new user")
+                                    loginDialog.open()
+                                }
+                            }
+                            MenuItem
+                            {
+                                text: "Quit"
+                                onClicked: {
+                                    appWindow.close()
+                                }
+
+                            }
                         }
                     }
                 }
