@@ -9,7 +9,7 @@
 class KStateMachine : public QStateMachine
 {
 private:
-     Backend& mw;
+     Backend& bkd;
 
 public:
     KStateMachine(Backend&, QObject *parent = nullptr);

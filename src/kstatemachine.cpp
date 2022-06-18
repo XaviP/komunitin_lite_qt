@@ -1,8 +1,8 @@
 #include "kstatemachine.h"
 
-KStateMachine::KStateMachine (Backend& mainwindow, QObject *parent) :
+KStateMachine::KStateMachine (Backend& backend, QObject *parent) :
     QStateMachine(parent),
-    mw(mainwindow),
+    bkd(backend),
 
     // group s1: flow with valid tokens
     s1(new QState()),
@@ -57,33 +57,33 @@ void KStateMachine::prepare_machine() {
     s3->setInitialState(s30ShowDialog);
 
     // group s1
-    s10NoAccess->addTransition(&mw, SIGNAL(app_is_ready()), s11CheckTokens);
-    s11CheckTokens->addTransition(&mw.ns.oauth2, SIGNAL(has_access()), s12HasAccess);
-    s12HasAccess->addTransition(&mw.ns, SIGNAL(has_accounts()), s13HasAccounts);
-    s13HasAccounts->addTransition(&mw.ns, SIGNAL(has_balance()), s14HasBalance);
-    s14HasBalance->addTransition(&mw.ns, SIGNAL(has_transfers()), s15HasTransfers);
-    s15HasTransfers->addTransition(&mw.ns, SIGNAL(has_all_data()), s16HasAllData);
-    // transition when reload transfer is triggered or when change accounts in accountComboBox
-    s16HasAllData->addTransition(&mw, SIGNAL(change_account()), s13HasAccounts);
+    s10NoAccess->addTransition(&bkd, SIGNAL(app_is_ready()), s11CheckTokens);
+    s11CheckTokens->addTransition(&bkd.ns.oauth2, SIGNAL(has_access()), s12HasAccess);
+    s12HasAccess->addTransition(&bkd.ns, SIGNAL(has_accounts()), s13HasAccounts);
+    s13HasAccounts->addTransition(&bkd.ns, SIGNAL(has_balance()), s14HasBalance);
+    s14HasBalance->addTransition(&bkd.ns, SIGNAL(has_transfers()), s15HasTransfers);
+    s15HasTransfers->addTransition(&bkd.ns, SIGNAL(has_all_data()), s16HasAllData);
+    // transition when reload transfer is triggered or when change account in accountComboBox
+    s16HasAllData->addTransition(&bkd, SIGNAL(reload_transfers()), s13HasAccounts);
     // transition when new user is triggered
-    s16HasAllData->addTransition(&mw, SIGNAL(new_user()), s11CheckTokens);
+    s16HasAllData->addTransition(&bkd, SIGNAL(new_user()), s11CheckTokens);
 
     // group s2
-//    s20ShowDialog->addTransition(&mw.loginD, SIGNAL(send_authorization()), s21TryAuth);
-    s21TryAuth->addTransition(&mw.ns.oauth2, SIGNAL(error_auth()), s20ShowDialog);
+    s20ShowDialog->addTransition(&bkd, SIGNAL(send_authorization()), s21TryAuth);
+    s21TryAuth->addTransition(&bkd.ns.oauth2, SIGNAL(error_auth()), s20ShowDialog);
 
     // group s3
-//    s30ShowDialog->addTransition(&mw.transD, SIGNAL(check_account()), s31CheckAccount);
-//    s31CheckAccount->addTransition(&mw.ns, SIGNAL(confirm_transfer()), s32ShowConfirm);
-//    s32ShowConfirm->addTransition(&mw.transD, SIGNAL(send_transfer()), s33SendTransfer);
-//    s32ShowConfirm->addTransition(&mw.transD, SIGNAL(edit_transfer()), s30ShowDialog);
+//    s30ShowDialog->addTransition(&bkd.transD, SIGNAL(check_account()), s31CheckAccount);
+//    s31CheckAccount->addTransition(&bkd.ns, SIGNAL(confirm_transfer()), s32ShowConfirm);
+//    s32ShowConfirm->addTransition(&bkd.transD, SIGNAL(send_transfer()), s33SendTransfer);
+//    s32ShowConfirm->addTransition(&bkd.transD, SIGNAL(edit_transfer()), s30ShowDialog);
 
     // transitions between groups s1, s2, and s3
-    s1->addTransition(&mw.ns.oauth2, SIGNAL(new_auth()), s2);
-//    s1->addTransition(&mw, SIGNAL(new_transfer()), s3);
-    s2->addTransition(&mw.ns.oauth2, SIGNAL(has_access()), s1H);
-//    s3->addTransition(&mw.transD, SIGNAL(exit_s3()), s1H);
-//    s3->addTransition(&mw.ns, SIGNAL(transfer_done()), s1H);
+    s1->addTransition(&bkd.ns.oauth2, SIGNAL(new_auth()), s2);
+//    s1->addTransition(&bkd, SIGNAL(new_transfer()), s3);
+    s2->addTransition(&bkd.ns.oauth2, SIGNAL(has_access()), s1H);
+//    s3->addTransition(&bkd.transD, SIGNAL(exit_s3()), s1H);
+//    s3->addTransition(&bkd.ns, SIGNAL(transfer_done()), s1H);
 
     addState(s1);
     addState(s2);
@@ -93,23 +93,23 @@ void KStateMachine::prepare_machine() {
     start(); // start machine
 
     // s1
-    QObject::connect(s11CheckTokens, &QState::entered, &mw.ns.oauth2, &Oauth2::check_tokens);
-    QObject::connect(s12HasAccess, &QState::entered, &mw.ns, &netServices::get_accounts);
-    QObject::connect(s13HasAccounts, &QState::entered, &mw, &Backend::show_accounts_data);
-    QObject::connect(s13HasAccounts, &QState::entered, &mw.ns, &netServices::get_account_balance);
-    QObject::connect(s14HasBalance, &QState::entered, &mw, &Backend::show_account_balance);
-    QObject::connect(s14HasBalance, &QState::entered, &mw.ns, &netServices::get_account_transfers);
-    QObject::connect(s15HasTransfers, &QState::entered, &mw.ns, &netServices::get_unknown_accounts);
-    QObject::connect(s16HasAllData, &QState::entered, &mw, &Backend::show_account_transfers);
+    QObject::connect(s11CheckTokens, &QState::entered, &bkd.ns.oauth2, &Oauth2::check_tokens);
+    QObject::connect(s12HasAccess, &QState::entered, &bkd.ns, &netServices::get_accounts);
+    QObject::connect(s13HasAccounts, &QState::entered, &bkd, &Backend::show_accounts_data);
+    QObject::connect(s13HasAccounts, &QState::entered, &bkd.ns, &netServices::get_account_balance);
+    QObject::connect(s14HasBalance, &QState::entered, &bkd, &Backend::show_account_balance);
+    QObject::connect(s14HasBalance, &QState::entered, &bkd.ns, &netServices::get_account_transfers);
+    QObject::connect(s15HasTransfers, &QState::entered, &bkd.ns, &netServices::get_unknown_accounts);
+    QObject::connect(s16HasAllData, &QState::entered, &bkd, &Backend::show_account_transfers);
 
     // s2
-//    QObject::connect(s20ShowDialog, &QState::entered, &mw, &MainWindow::ask_for_new_auth);
-//    QObject::connect(&mw.loginD, &LoginDialog::send_authorization, &mw, &MainWindow::try_authorization);
-//    QObject::connect(&mw.ns.oauth2, &Oauth2::error_auth, &mw, &MainWindow::authorization_error);
+    QObject::connect(s20ShowDialog, &QState::entered, &bkd, &Backend::ask_for_new_auth);
+//    QObject::connect(&bkd, &Backend::send_authorization, &bkd, &Backend::try_authorization);
+//    QObject::connect(&bkd.ns.oauth2, &Oauth2::error_auth, &bkd, &Backend::authorization_error);
 
     // s3
-//    QObject::connect(s31CheckAccount, &QState::entered, &mw, &Backend::check_account);
-//    QObject::connect(s32ShowConfirm, &QState::entered, &mw, &Backend::confirm_transfer);
-//    QObject::connect(s33SendTransfer, &QState::entered, &mw.ns, &netServices::post_new_transfer);
-//    QObject::connect(&mw.ns, &netServices::transfer_done, &mw, &Backend::transfer_done);
+//    QObject::connect(s31CheckAccount, &QState::entered, &bkd, &Backend::check_account);
+//    QObject::connect(s32ShowConfirm, &QState::entered, &bkd, &Backend::confirm_transfer);
+//    QObject::connect(s33SendTransfer, &QState::entered, &bkd.ns, &netServices::post_new_transfer);
+//    QObject::connect(&bkd.ns, &netServices::transfer_done, &bkd, &Backend::transfer_done);
 }

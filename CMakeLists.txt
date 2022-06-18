@@ -45,7 +45,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_qml_module(komunitinLite
         URI komunitin_lite
         VERSION 1.0
-        QML_FILES src/qml/main.qml
+        QML_FILES src/qml/main.qml 
+        src/qml/LoginDialog.qml
+        src/qml/TransferDialog.qml
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET komunitin_lite APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

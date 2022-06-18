@@ -20,24 +20,19 @@ Backend::Backend(QObject *parent)
 Backend::~Backend()
 {}
 
-void Backend::test_qml() {
-    qDebug() << "connected to QML";
-}
-
 void Backend::appIsReady() {
-    // transite to 2nd state in state machine
+    // transite to 2nd state in state machine group s1
     emit app_is_ready();
 }
 
 void Backend::ask_for_new_auth() {
     // open new_user dialog
-    // loginD.open();
+    emit show_login_dialog();
 }
 
-void Backend::try_authorization() {
-//    ui->statusbar->showMessage(tr("Trying authorization..."));
-//    kSettings.user_email = loginD.get_email();
-//    ns.oauth2.get_access(loginD.get_email(), loginD.get_password());
+void Backend::try_authorization(const QString email, const QString password) {
+    kSettings.user_email = email;
+    ns.oauth2.get_access(email, password);
 }
 
 void Backend::authorization_error() {
@@ -99,7 +94,7 @@ void Backend::changeAccount(int index) {
 //        ns.index_current_acc = index;
 //        ui->tableWidget->clearContents();
 //        ui->tableWidget->setRowCount(1);
-//        emit change_account();
+//        emit reload_transfers();
 //    }
 }
 
@@ -107,7 +102,7 @@ void Backend::on_actionReload_transfer_triggered() {
 //    ui->tableWidget->clearContents();
 //    ui->tableWidget->setRowCount(1);
 //    ui->statusbar->showMessage(tr("Reloading transfers..."));
-//    emit change_account();
+//    emit reload_transfers();
 }
 
 void Backend::on_actionNew_User_triggered() {

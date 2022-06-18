@@ -18,8 +18,6 @@ class Oauth2 : public QObject {
 
 private:
     QNetworkAccessManager *netM;
-    QString access_token;
-    QString refresh_token;
 
 public:
     Oauth2(QNetworkAccessManager*, QObject *parent = nullptr);

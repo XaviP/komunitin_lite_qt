@@ -1,6 +1,6 @@
 import QtQuick
 import QtQuick.Controls
-//import QtQuick.Controls.Material
+import QtQuick.Controls.Material
 
 
 Window {
@@ -14,30 +14,14 @@ Window {
     property string greyLight: "#eeeeee"
     title: qsTr("Komunitin Lite")
 
-//    Material.theme: Material.Light
-//    Material.accent: Material.Green
+    Material.theme: Material.Light
+    Material.accent: Material.Green
 
-    Dialog {
-        id: loginDialog
-        width: parent.width
-        height: parent.height
-        title: "Login"
-        modal: true
-        standardButtons: Dialog.Ok | Dialog.Cancel
-
-        onAccepted: console.log("Ok clicked")
-        onRejected: console.log("Cancel clicked")
-    }
-    Dialog {
-        id: transferDialog
-        title: "New Transfer"
-        modal: true
-        standardButtons: Dialog.Ok | Dialog.Cancel
-        width: parent.width
-        height: parent.height
-
-        onAccepted: console.log("Ok clicked")
-        onRejected: console.log("Cancel clicked")
+    Connections {
+        target: backend
+        function onShow_login_dialog() {
+            LoginDialog.open()
+        }
     }
 
     Column {
@@ -65,10 +49,10 @@ Window {
                     width: rectangleHeader.widthRectangles
                     height: 50
                     color: "#00000000"
-                    Button {
-                        id: button
-                        width: 30
-                        height: 30
+                    RoundButton {
+                        id: menuButton
+                        width: 40
+                        height: 40
                         text: "\u2630"
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.left: parent.left
@@ -76,24 +60,22 @@ Window {
                         highlighted: false
                         anchors.leftMargin: 10
                         onClicked: {
-                            backend.test_qml()
                             menu.open()
-                            console.log("open menu")
                         }
                         Menu {
                             id: menu
                             modal: true
-                            y : fileButton.height
+                            y : menuButton.height
                             MenuItem
                             {
-                                text: "Reload transfers"
+                                text: qsTr("Reload transfers")
                                 onClicked: {
                                     console.log("reload transfers")
                                 }
                             }
                             MenuItem
                             {
-                                text: "New transfer"
+                                text: qsTr("New transfer")
                                 onClicked: {
                                     console.log("new transfer")
                                     transferDialog.open()
@@ -101,7 +83,7 @@ Window {
                             }
                             MenuItem
                             {
-                                text: "New user"
+                                text: qsTr("New user")
                                 onClicked: {
                                     console.log("new user")
                                     loginDialog.open()
@@ -109,7 +91,7 @@ Window {
                             }
                             MenuItem
                             {
-                                text: "Quit"
+                                text: qsTr("Quit")
                                 onClicked: {
                                     appWindow.close()
                                 }
@@ -174,4 +156,9 @@ Window {
             anchors.horizontalCenter: parent.horizontalCenter
         }
     }
+
+    LoginDialog {}
+
+    TransferDialog {}
+
 }

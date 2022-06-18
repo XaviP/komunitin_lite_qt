@@ -1,9 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QtQml/qqml.h>
 #include <QCloseEvent>
 #include "netservices.h"
-#include "qqmlregistration.h"
 
 class Backend : public QObject
 {
@@ -23,12 +23,11 @@ private:
     void closeEvent(QCloseEvent *event);
 
 public slots:
-    void test_qml();
     void show_accounts_data();
     void show_account_balance();
     void show_account_transfers();
     void ask_for_new_auth();
-    void try_authorization();
+    void try_authorization(const QString, const QString);
     void authorization_error();
     void check_account();
     void confirm_transfer();
@@ -43,7 +42,9 @@ private slots:
 
 signals:
     void app_is_ready();
-    void change_account();
+    void show_login_dialog();
+    void send_authorization();
+    void reload_transfers();
     void new_user();
     void new_transfer();
 
