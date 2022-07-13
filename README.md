@@ -27,9 +27,9 @@ Check [Releases](https://github.com/komunitin/komunitin_lite_qt/releases) for bi
 
 There are two main branches in this repository:
 
-- main: it works with Qt Quick QML (the current development for mobile devices)
+- main: it works with Qt Widgets
 
-- main_widgets: it works with Qt Widgets (development for desktop only)
+- main_qml: development with Qt Quick QML
 
 
 ### TODO ([see issues](https://github.com/komunitin/komunitin_lite_qt/issues))
